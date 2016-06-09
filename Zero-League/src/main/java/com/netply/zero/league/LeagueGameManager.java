@@ -1,5 +1,8 @@
 package com.netply.zero.league;
 
+import com.netply.zero.service.base.Service;
+
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 public class LeagueGameManager {
@@ -11,6 +14,10 @@ public class LeagueGameManager {
             instance = new LeagueGameManager();
         }
         return instance;
+    }
+
+    public void parseCurrentGamesFromBotChan() throws InterruptedException {
+        ArrayList<String> trackedSummoners = Service.request("trackerPlayers", new Credentials());
     }
 
     public void parseCurrentGames() throws InterruptedException {

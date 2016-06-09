@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Zero-Discord</artifactId>
+    <artifactId>Zero-Service-Base</artifactId>
     <version>1.0-SNAPSHOT</version>
+
 
     <parent>
         <groupId>com.netply</groupId>
-        <artifactId>Zero-Base</artifactId>
+        <artifactId>Zero-Parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../Zero-Base</relativePath>
+        <relativePath>../Zero-Parent</relativePath>
     </parent>
 
 </project>

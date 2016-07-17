@@ -24,7 +24,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.netply</groupId>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>Zero-Service-Base</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

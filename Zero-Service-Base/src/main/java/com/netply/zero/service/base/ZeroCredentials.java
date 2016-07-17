@@ -1,9 +1,11 @@
 package com.netply.zero.service.base;
 
 public interface ZeroCredentials {
-    String getBotUser();
+    String getUsername();
 
-    String getBotToken();
+    String getSessionKey();
+
+    String getPasswordHash();
 
     String getBotType();
 }

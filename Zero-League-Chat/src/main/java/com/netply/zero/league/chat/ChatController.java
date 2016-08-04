@@ -1,10 +1,10 @@
 package com.netply.zero.league.chat;
 
 import com.netply.botchan.web.model.Greeting;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.netply.botchan.web.model.Message;
+import com.netply.zero.league.chat.persistence.LeagueChatDatabase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,11 +12,18 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ChatController {
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
+    @Autowired
+    private LeagueChatDatabase leagueChatDatabase;
 
 
-    @RequestMapping(value = "/message", produces = "application/json")
+    @RequestMapping(value = "/message", produces = "application/json", method = RequestMethod.PUT)
     public @ResponseBody
-    Greeting message(@RequestParam(value = "sessionKey", required = false) String sessionKey, @RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    Greeting message(
+            @RequestParam(value = "sessionKey", required = false) String sessionKey,
+            @RequestBody Message message) {
+        System.out.println(message.toString());
+        leagueChatDatabase.addMessage(message.getTarget(), message.getMessage());
+
+        return new Greeting(counter.incrementAndGet(), String.format(template, ""));
     }
 }

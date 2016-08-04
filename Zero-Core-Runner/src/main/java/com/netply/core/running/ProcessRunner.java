@@ -21,8 +21,4 @@ public class ProcessRunner {
             }
         }.start();
     }
-
-//    public static void startReadWhatsAppInput() throws IOException {
-//        startParserThread(WhatsAppIOManager.getInstance()::postRunReadInput, 5000);
-//    }
 }

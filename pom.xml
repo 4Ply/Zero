@@ -14,15 +14,16 @@
     </properties>
 
     <modules>
-        <module>Netply-Core</module>
+        <module>Zero-Core-Runner</module>
 
         <module>Zero-Parent</module>
         <module>Zero-Messaging-Base</module>
-        <module>Zero-Service-Base</module>
+        <module>Zero-Base-Service</module>
         <module>Zero-Base</module>
 
         <module>Zero-Discord</module>
         <module>Zero-League</module>
+        <module>Zero-League-Chat</module>
     </modules>
 
     <build>

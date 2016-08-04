@@ -32,6 +32,11 @@ public class League {
         }.start();
     }
 
+    public static void init() {
+        RiotAPI.setRegion(Region.EUW);
+        RiotAPI.setAPIKey(Credentials.RIOT_API_KEY);
+    }
+
     public static synchronized League getInstance() {
         if (instance == null) {
             instance = new League();

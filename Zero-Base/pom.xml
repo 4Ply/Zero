@@ -11,9 +11,9 @@
 
     <parent>
         <groupId>com.netply</groupId>
-        <artifactId>Zero-Parent</artifactId>
+        <artifactId>Zero-Base-Node</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../Zero-Parent</relativePath>
+        <relativePath>../Zero-Base-Node</relativePath>
     </parent>
 
     <dependencies>

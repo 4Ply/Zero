@@ -16,7 +16,7 @@
     <modules>
         <module>Zero-Core-Runner</module>
 
-        <module>Zero-Parent</module>
+        <module>Zero-Base-Node</module>
         <module>Zero-Messaging-Base</module>
         <module>Zero-Base-Service</module>
         <module>Zero-Base</module>

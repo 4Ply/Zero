@@ -1,6 +1,5 @@
 package com.netply.zero.discord;
 
-
 import com.netply.zero.messaging.base.poco.BaseMessage;
 import com.netply.zero.messaging.base.poco.MessageType;
 
@@ -13,7 +12,6 @@ public class SendDiscordMessage extends BaseMessage {
         super();
         this.uuid = uuid;
         this.message = message;
-        System.out.println("BE LYK DAT");
     }
 
     @Override

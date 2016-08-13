@@ -3,9 +3,9 @@ package com.netply.zero.discord;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 
-class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
+public class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
     public void handle(MessageReceivedEvent messageReceivedEvent) {
-
+        System.out.println(messageReceivedEvent.getMessage().getContent());
     }
 
 //    private static final Logger log = Log.getLogger();

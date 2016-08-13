@@ -1,6 +1,7 @@
-package com.netply.zero.discord;
+package com.netply.zero.discord.chat;
 
 import com.netply.core.logging.Log;
+import com.netply.zero.discord.DiscordMessageReceivedEventListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
@@ -9,27 +10,17 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
 
-import java.util.logging.Logger;
-
-public class DiscordChatManager {
-    private static final Logger log = Log.getLogger();
-    private static DiscordChatManager instance;
+public class DiscordChatManagerImpl implements DiscordChatManager {
     private final IDiscordClient discordClient;
-    private boolean initCalled = false;
 
 
-    private DiscordChatManager(IDiscordClient discordClient) {
-        this.discordClient = discordClient;
+    public DiscordChatManagerImpl(String discordAPIKey) throws DiscordException {
+        this.discordClient = getClient(discordAPIKey, true);
+        EventDispatcher dispatcher = discordClient.getDispatcher();
+        dispatcher.registerListener(new DiscordMessageReceivedEventListener());
     }
 
-    public static DiscordChatManager getInstance() throws DiscordException {
-        if (instance == null) {
-            instance = new DiscordChatManager(getClient(Credentials.DISCORD_TOKEN, true));
-        }
-        return instance;
-    }
-
-    public static IDiscordClient getClient(String token, boolean login) throws DiscordException {
+    private IDiscordClient getClient(String token, boolean login) throws DiscordException {
         ClientBuilder clientBuilder = new ClientBuilder();
         clientBuilder.withToken(token);
         if (login) {
@@ -39,21 +30,14 @@ public class DiscordChatManager {
         }
     }
 
-    public void init() {
-        if (!initCalled) {
-            initCalled = true;
-            EventDispatcher dispatcher = discordClient.getDispatcher();
-            dispatcher.registerListener(new DiscordMessageReceivedEventListener());
-        }
-    }
-
+    @Override
     public void sendMessage(String uuid, String message) {
         IPrivateChannel pmChannel;
         try {
             pmChannel = discordClient.getOrCreatePMChannel(discordClient.getUserByID(uuid));
             pmChannel.sendMessage(message);
         } catch (DiscordException | HTTP429Exception | MissingPermissionsException e) {
-            log.severe(e.getMessage());
+            Log.getLogger().severe(e.getMessage());
             e.printStackTrace();
         }
     }

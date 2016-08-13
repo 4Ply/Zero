@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.netply.botchan.web.model.BasicResultResponse;
 import com.netply.core.running.ProcessRunner;
 import com.netply.core.running.queue.QueueManger;
+import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;

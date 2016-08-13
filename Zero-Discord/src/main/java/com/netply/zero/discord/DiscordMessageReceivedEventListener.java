@@ -1,11 +1,27 @@
 package com.netply.zero.discord;
 
+import com.netply.botchan.web.model.Message;
+import com.netply.zero.service.base.Service;
+import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
+    private String botChanURL;
+
+
+    public DiscordMessageReceivedEventListener(String botChanURL) {
+        this.botChanURL = botChanURL;
+    }
+
     public void handle(MessageReceivedEvent messageReceivedEvent) {
-        System.out.println(messageReceivedEvent.getMessage().getContent());
+        String name = messageReceivedEvent.getMessage().getAuthor().getName();
+        String content = messageReceivedEvent.getMessage().getContent();
+        Logger.getGlobal().log(Level.INFO, String.format("[Message] %s: %s\n", name, content));
+        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(0, name, content));
     }
 
 //    private static final Logger log = Log.getLogger();

@@ -4,8 +4,8 @@ import com.netply.botchan.web.model.BasicResultResponse;
 import com.netply.botchan.web.model.MatcherList;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.SessionManager;
-import com.netply.zero.service.base.ZeroCredentials;
+import com.netply.zero.service.base.credentials.SessionManager;
+import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.sun.jersey.api.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +17,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.util.ArrayList;
 
 @Component
-public class LeagueChatRegistrationBean {
+public class LeagueChatLoginAndMessageMatcherRegistrationBean {
     private String botChanUrl;
 
     static {
@@ -25,7 +25,7 @@ public class LeagueChatRegistrationBean {
     }
 
     @Autowired
-    public LeagueChatRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanUrl) {
+    public LeagueChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanUrl) {
         this.botChanUrl = botChanUrl;
     }
 

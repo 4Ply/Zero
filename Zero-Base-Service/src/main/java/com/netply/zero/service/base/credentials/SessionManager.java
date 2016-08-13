@@ -1,4 +1,4 @@
-package com.netply.zero.service.base;
+package com.netply.zero.service.base.credentials;
 
 public class SessionManager {
     private static String sessionKey;

@@ -14,10 +14,10 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
     private final IDiscordClient discordClient;
 
 
-    public DiscordChatManagerImpl(String discordAPIKey) throws DiscordException {
+    public DiscordChatManagerImpl(String discordAPIKey, String botChanURL) throws DiscordException {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
-        dispatcher.registerListener(new DiscordMessageReceivedEventListener());
+        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL));
     }
 
     private IDiscordClient getClient(String token, boolean login) throws DiscordException {

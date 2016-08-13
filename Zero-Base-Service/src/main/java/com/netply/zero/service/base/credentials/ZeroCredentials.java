@@ -1,4 +1,4 @@
-package com.netply.zero.service.base;
+package com.netply.zero.service.base.credentials;
 
 public interface ZeroCredentials {
     String getUsername();

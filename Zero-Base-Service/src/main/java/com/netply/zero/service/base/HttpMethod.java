@@ -15,8 +15,12 @@ public enum HttpMethod implements ClientResponseProvider {
     }, POST {
         @Override
         public ClientResponse execute(WebResource webResource, Object requestEntity) {
-//            return webResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).post(ClientResponse.class, requestEntity);
             return webResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).post(ClientResponse.class, gson.toJson(requestEntity));
+        }
+    }, PUT {
+        @Override
+        public ClientResponse execute(WebResource webResource, Object requestEntity) {
+            return webResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).put(ClientResponse.class, gson.toJson(requestEntity));
         }
     };
 

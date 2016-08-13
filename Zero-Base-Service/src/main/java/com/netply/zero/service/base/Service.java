@@ -44,9 +44,10 @@ public class Service {
             String output = response.getEntity(String.class);
             System.out.println(output);
 
-            Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
-            System.out.println(parsedResponse);
-
+            if (element.getResponseClass() != null) {
+                Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
+                System.out.println(parsedResponse);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -62,6 +63,10 @@ public class Service {
 
     public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
         exec(url, HttpMethod.POST, credentials, responseClass, requestEntity);
+    }
+
+    public void put(String url, ZeroCredentials credentials, Object requestEntity) {
+        exec(url, HttpMethod.PUT, credentials, null, requestEntity);
     }
 
     public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {

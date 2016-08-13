@@ -1,8 +1,8 @@
-package com.netply.zero.league.chat;
+package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.Greeting;
 import com.netply.botchan.web.model.Message;
-import com.netply.zero.league.chat.persistence.LeagueChatDatabase;
+import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

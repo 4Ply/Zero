@@ -1,7 +1,7 @@
-package com.netply.zero.league.chat;
+package com.netply.zero.eventador.league.chat;
 
-import com.netply.zero.league.chat.persistence.Database;
-import com.netply.zero.league.chat.persistence.LeagueChatDatabase;
+import com.netply.zero.eventador.league.chat.persistence.Database;
+import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

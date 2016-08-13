@@ -1,4 +1,4 @@
-package com.netply.zero.league.chat.persistence;
+package com.netply.zero.eventador.league.chat.persistence;
 
 import com.netply.botchan.web.model.Message;
 

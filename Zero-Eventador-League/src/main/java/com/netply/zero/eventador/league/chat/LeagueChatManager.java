@@ -1,6 +1,6 @@
-package com.netply.zero.league.chat;
+package com.netply.zero.eventador.league.chat;
 
-import com.netply.zero.league.chat.persistence.LeagueChatDatabase;
+import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import com.robrua.orianna.api.core.RiotAPI;
 import com.robrua.orianna.type.core.common.Region;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;

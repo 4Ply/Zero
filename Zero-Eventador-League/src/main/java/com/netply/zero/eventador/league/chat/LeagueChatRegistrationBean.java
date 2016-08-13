@@ -1,4 +1,4 @@
-package com.netply.zero.league.chat;
+package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.NodeDetails;
 import com.netply.zero.service.base.Service;

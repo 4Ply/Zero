@@ -19,15 +19,15 @@ import java.util.ArrayList;
 
 @Component
 public class LeagueChatLoginAndMessageMatcherRegistrationBean {
-    private String botChanUrl;
+    private String botChanURL;
 
     static {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals("127.0.0.1"));
     }
 
     @Autowired
-    public LeagueChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanUrl) {
-        this.botChanUrl = botChanUrl;
+    public LeagueChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+        this.botChanURL = botChanURL;
     }
 
     @Async
@@ -50,7 +50,7 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
             }
         };
 
-        Service.create(botChanUrl).login(credentials.getUsername(), credentials.getPasswordHash(), getServiceCallback(credentials));
+        Service.create(botChanURL).login(credentials.getUsername(), credentials.getPasswordHash(), getServiceCallback(credentials));
     }
 
     private ServiceCallback<BasicResultResponse> getServiceCallback(final ZeroCredentials credentials) {
@@ -77,7 +77,7 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
     private void registerMessageMatchers(ZeroCredentials credentials, Integer clientID) {
         ArrayList<String> messageMatchers = new ArrayList<>();
         messageMatchers.add("(.*)League(.*)");
-        Service.create(botChanUrl).put("/messageMatchers", credentials, new MatcherList(clientID, messageMatchers), new ServiceCallback<Object>() {
+        Service.create(botChanURL).put("/messageMatchers", credentials, new MatcherList(clientID, messageMatchers), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

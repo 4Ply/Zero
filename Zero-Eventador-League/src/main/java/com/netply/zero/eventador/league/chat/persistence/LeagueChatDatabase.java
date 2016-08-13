@@ -9,5 +9,5 @@ public interface LeagueChatDatabase {
 
     List<Message> getUnprocessedMessages();
 
-    int processMessage(long id);
+    int processMessage(String id);
 }

@@ -66,7 +66,7 @@ public class Database implements LeagueChatDatabase {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                messages.add(new Message(resultSet.getInt("id"), resultSet.getString("message"), resultSet.getString("target")));
+                messages.add(new Message(resultSet.getString("id"), resultSet.getString("message"), resultSet.getString("target")));
             }
             return messages;
         } catch (SQLException e) {
@@ -77,9 +77,9 @@ public class Database implements LeagueChatDatabase {
     }
 
     @Override
-    public int processMessage(long id) {
+    public int processMessage(String id) {
         try (PreparedStatement preparedStatement = getConnection().prepareStatement("UPDATE league_messages SET processed = 1 WHERE id = ? AND processed = 0")) {
-            preparedStatement.setLong(1, id);
+            preparedStatement.setString(1, id);
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             Database.LOGGER.severe(e.getMessage());

@@ -2,6 +2,7 @@ package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.BasicResultResponse;
 import com.netply.botchan.web.model.MatcherList;
+import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.SessionManager;
@@ -58,21 +59,21 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
     }
 
     private ServiceCallback<BasicResultResponse> getServiceCallback(final ZeroCredentials credentials) {
+        BasicLoginCallback basicLoginCallback = new BasicLoginCallback();
         return new ServiceCallback<BasicResultResponse>() {
             @Override
             public void onError(ClientResponse response) {
-                System.err.println(response.toString());
-                throw new RuntimeException("Unable to authenticate with Bot-chan! Error code: " + response.getStatus());
+                basicLoginCallback.onError(response);
             }
 
             @Override
             public void onSuccess(String output) {
-
+                basicLoginCallback.onSuccess(output);
             }
 
             @Override
             public void onSuccess(BasicResultResponse parsedResponse) {
-                SessionManager.setSessionKey(parsedResponse.getSessionKey());
+                basicLoginCallback.onSuccess(parsedResponse);
                 registerMessageMatchers(credentials, parsedResponse.getClientID());
             }
         };

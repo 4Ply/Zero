@@ -22,6 +22,11 @@ public enum HttpMethod implements ClientResponseProvider {
         public ClientResponse execute(WebResource webResource, Object requestEntity) {
             return webResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).put(ClientResponse.class, gson.toJson(requestEntity));
         }
+    }, DELETE {
+        @Override
+        public ClientResponse execute(WebResource webResource, Object requestEntity) {
+            return webResource.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).delete(ClientResponse.class, gson.toJson(requestEntity));
+        }
     };
 
     private static Gson gson = new Gson();

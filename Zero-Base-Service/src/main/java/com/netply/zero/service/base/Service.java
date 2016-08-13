@@ -13,6 +13,8 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import java.security.InvalidParameterException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Service {
     private static Client client;
@@ -37,27 +39,35 @@ public class Service {
 
     private static void consumeQueue() {
         try {
-            ServiceInvocation element = queueManger.getNextQueueElement();
-            ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
-
-            if (response.getStatus() != 200) {
-                System.err.println("Service call failed : HTTP error code : " + response.getStatus());
-                element.getServiceCallback().onError(response);
-                return;
-            }
-
-            String output = response.getEntity(String.class);
-            System.out.println(output);
-
-            element.getServiceCallback().onSuccess(output);
-
-            if (element.getResponseClass() != null) {
-                Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
-                System.out.println(parsedResponse);
-                element.getServiceCallback().onSuccess(parsedResponse);
-            }
+            consumeItem(queueManger.getNextQueueElement());
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void consumeItem(ServiceInvocation element) {
+        System.out.println(element.getMethod().name() + " | " + element.getWebResource().getURI().toString());
+        System.out.println("Request Data: " + element.getRequestEntity());
+
+        ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
+
+        if (response.getStatus() != 200) {
+            Logger.getGlobal().log(Level.SEVERE, "Service call failed : HTTP error code : " + response.getStatus());
+            element.getServiceCallback().onError(response);
+            return;
+        }
+
+        String output = response.getEntity(String.class);
+        System.out.println("Basic Response: " + output);
+
+        element.getServiceCallback().onSuccess(output);
+
+        if (element.getResponseClass() != null) {
+            Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
+            if (parsedResponse != null) {
+                Logger.getGlobal().log(Level.FINER, parsedResponse.toString());
+                element.getServiceCallback().onSuccess(parsedResponse);
+            }
         }
     }
 
@@ -66,11 +76,23 @@ public class Service {
     }
 
     public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass) {
-        get(url, credentials, responseClass, new EmptyServiceCallback<>());
+        getConcurrent(url, credentials, responseClass, new EmptyServiceCallback<>());
     }
 
-    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
-        exec(url, HttpMethod.GET, credentials, responseClass, null, serviceCallback);
+    public <T> void getConcurrent(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        get(url, false, credentials, responseClass, serviceCallback);
+    }
+
+    public void delete(String url, boolean concurrent, ZeroCredentials credentials, ServiceCallback<Object> serviceCallback) {
+        exec(url, HttpMethod.DELETE, concurrent, credentials, null, null, serviceCallback);
+    }
+
+    public <T> void get(String url, boolean concurrent, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        exec(url, HttpMethod.GET, concurrent, credentials, responseClass, null, serviceCallback);
+    }
+
+    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+        exec(url, HttpMethod.GET, false, credentials, responseClass, null, serviceCallback, params);
     }
 
     public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
@@ -78,7 +100,7 @@ public class Service {
     }
 
     public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
-        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity, serviceCallback);
+        exec(url, HttpMethod.POST, false, credentials, responseClass, requestEntity, serviceCallback);
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity) {
@@ -86,14 +108,14 @@ public class Service {
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
-        exec(url, HttpMethod.PUT, credentials, null, requestEntity, serviceCallback);
+        exec(url, HttpMethod.PUT, false, credentials, null, requestEntity, serviceCallback);
     }
 
-    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
-        exec(url, method, credentials, responseClass, requestEntity, serviceCallback, new MultivaluedMapImpl());
+    public <T> void exec(String url, HttpMethod method, boolean concurrent, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
+        exec(url, method, concurrent, credentials, responseClass, requestEntity, serviceCallback, new MultivaluedMapImpl());
     }
 
-    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+    public <T> void exec(String url, HttpMethod method, boolean concurrent, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
         if (credentials == null) {
             throw new InvalidParameterException("credentials cannot be null");
         } else {
@@ -104,7 +126,13 @@ public class Service {
                     .queryParam("botType", credentials.getBotType());
 
             webResource.queryParams(params);
-            queueManger.add(new ServiceInvocation<>(webResource, requestEntity, method, responseClass, serviceCallback));
+
+            ServiceInvocation<T> serviceInvocation = new ServiceInvocation<>(webResource, requestEntity, method, responseClass, serviceCallback);
+            if (concurrent) {
+                queueManger.add(serviceInvocation);
+            } else {
+                consumeItem(serviceInvocation);
+            }
         }
     }
 

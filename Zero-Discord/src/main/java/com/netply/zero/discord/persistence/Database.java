@@ -66,7 +66,7 @@ public class Database implements DiscordChatDatabase {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                messages.add(new Message(resultSet.getInt("id"), resultSet.getString("message"), resultSet.getString("target")));
+                messages.add(new Message(resultSet.getString("id"), resultSet.getString("message"), resultSet.getString("target")));
             }
             return messages;
         } catch (SQLException e) {

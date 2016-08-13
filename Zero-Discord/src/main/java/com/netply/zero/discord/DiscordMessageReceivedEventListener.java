@@ -21,7 +21,7 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
         String name = messageReceivedEvent.getMessage().getAuthor().getName();
         String content = messageReceivedEvent.getMessage().getContent();
         Logger.getGlobal().log(Level.INFO, String.format("[Message] %s: %s\n", name, content));
-        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(0, name, content));
+        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(null, content, name));
     }
 
 //    private static final Logger log = Log.getLogger();

@@ -23,7 +23,7 @@ public class LeagueGameManager {
     @SuppressWarnings("unchecked")
     public void parseCurrentGamesFromBotChan() throws InterruptedException {
         Service service = Service.create(Credentials.BASE_URL);
-//        ArrayList<String> trackedSummoners = service.get("trackedPlayers", new Credentials(), ArrayList.class);
+//        ArrayList<String> trackedSummoners = service.getConcurrent("trackedPlayers", new Credentials(), ArrayList.class);
         ArrayList<String> trackedSummoners = new ArrayList<>();
 
         List<String> playerList = trackedSummoners.stream()

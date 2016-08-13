@@ -77,6 +77,8 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
     private void registerMessageMatchers(ZeroCredentials credentials, Integer clientID) {
         ArrayList<String> messageMatchers = new ArrayList<>();
         messageMatchers.add("(.*)League(.*)");
+        messageMatchers.add(ChatMatchers.WHO_IS_PLAYING_MATCHER);
+        messageMatchers.add(ChatMatchers.TRACK_PLAYER_MATCHER);
         Service.create(botChanURL).put("/messageMatchers", credentials, new MatcherList(clientID, messageMatchers), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {

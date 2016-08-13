@@ -6,16 +6,17 @@ import com.robrua.orianna.type.core.common.Region;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LeagueChatManager {
+public class LeagueGameController {
     private LeagueChatDatabase leagueChatDatabase;
 
 
     @Autowired
-    public LeagueChatManager(LeagueChatDatabase leagueChatDatabase, @Value("${key.external.riot.api.key}") String riotAPIKey) {
+    public LeagueGameController(LeagueChatDatabase leagueChatDatabase, @Value("${key.external.riot.api.key}") String riotAPIKey) {
         this.leagueChatDatabase = leagueChatDatabase;
         RiotAPI.setRegion(Region.EUW);
         System.out.println(riotAPIKey);
@@ -32,6 +33,7 @@ public class LeagueChatManager {
         }
     }
 
+    @Async
     @Scheduled(fixedDelay = 60000)
     public void getCurrentPlayers() {
         CurrentGame currentGame = RiotAPI.getCurrentGame("Icarus Dies");

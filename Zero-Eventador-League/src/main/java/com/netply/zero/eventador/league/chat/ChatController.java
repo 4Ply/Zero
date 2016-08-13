@@ -22,7 +22,7 @@ public class ChatController {
             @RequestParam(value = "sessionKey", required = false) String sessionKey,
             @RequestBody Message message) {
         System.out.println(message.toString());
-        leagueChatDatabase.addMessage(message.getTarget(), message.getMessage());
+        leagueChatDatabase.addMessage(message.getSender(), message.getMessage());
 
         return new Greeting(counter.incrementAndGet(), String.format(template, ""));
     }

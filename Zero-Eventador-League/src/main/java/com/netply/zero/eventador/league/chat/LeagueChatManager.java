@@ -32,9 +32,9 @@ public class LeagueChatManager {
         }
     }
 
-    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 60000)
     public void getCurrentPlayers() {
-        CurrentGame currentGame = RiotAPI.getCurrentGame("");
+        CurrentGame currentGame = RiotAPI.getCurrentGame("Icarus Dies");
         if (currentGame != null) {
             System.out.println(currentGame.toString());
         } else {

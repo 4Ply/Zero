@@ -1,6 +1,5 @@
 package com.netply.zero.messaging.base.messaging;
 
-
 import com.netply.core.running.queue.QueueManger;
 import com.netply.zero.messaging.base.poco.BaseMessage;
 

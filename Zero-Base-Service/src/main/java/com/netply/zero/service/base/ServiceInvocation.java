@@ -7,13 +7,15 @@ public class ServiceInvocation<T> {
     private final Object requestEntity;
     private final HttpMethod method;
     private final Class<T> responseClass;
+    private ServiceCallback<T> serviceCallback;
 
 
-    public ServiceInvocation(WebResource webResource, Object requestEntity, HttpMethod method, Class<T> responseClass) {
+    public ServiceInvocation(WebResource webResource, Object requestEntity, HttpMethod method, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
         this.webResource = webResource;
         this.requestEntity = requestEntity;
         this.method = method;
         this.responseClass = responseClass;
+        this.serviceCallback = serviceCallback;
     }
 
     public WebResource getWebResource() {
@@ -30,5 +32,9 @@ public class ServiceInvocation<T> {
 
     public Class<T> getResponseClass() {
         return responseClass;
+    }
+
+    public ServiceCallback<T> getServiceCallback() {
+        return serviceCallback;
     }
 }

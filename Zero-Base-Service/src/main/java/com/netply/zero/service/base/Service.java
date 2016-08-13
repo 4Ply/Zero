@@ -1,6 +1,7 @@
 package com.netply.zero.service.base;
 
 import com.google.gson.Gson;
+import com.netply.botchan.web.model.BasicResultResponse;
 import com.netply.core.running.ProcessRunner;
 import com.netply.core.running.queue.QueueManger;
 import com.sun.jersey.api.client.Client;
@@ -8,6 +9,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.json.JSONConfiguration;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import java.security.InvalidParameterException;
 
@@ -38,15 +40,20 @@ public class Service {
             ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
 
             if (response.getStatus() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+                System.err.println("Service call failed : HTTP error code : " + response.getStatus());
+                element.getServiceCallback().onError(response);
+                return;
             }
 
             String output = response.getEntity(String.class);
             System.out.println(output);
 
+            element.getServiceCallback().onSuccess(output);
+
             if (element.getResponseClass() != null) {
                 Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
                 System.out.println(parsedResponse);
+                element.getServiceCallback().onSuccess(parsedResponse);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -58,18 +65,34 @@ public class Service {
     }
 
     public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass) {
-        exec(url, HttpMethod.GET, credentials, responseClass, null);
+        get(url, credentials, responseClass, new EmptyServiceCallback<>());
+    }
+
+    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        exec(url, HttpMethod.GET, credentials, responseClass, null, serviceCallback);
     }
 
     public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
-        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity);
+        post(url, credentials, responseClass, requestEntity, new EmptyServiceCallback<>());
+    }
+
+    public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
+        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity, serviceCallback);
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity) {
-        exec(url, HttpMethod.PUT, credentials, null, requestEntity);
+        put(url, credentials, requestEntity, new EmptyServiceCallback<>());
     }
 
-    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
+    public void put(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
+        exec(url, HttpMethod.PUT, credentials, null, requestEntity, serviceCallback);
+    }
+
+    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
+        exec(url, method, credentials, responseClass, requestEntity, serviceCallback, new MultivaluedMapImpl());
+    }
+
+    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
         if (credentials == null) {
             throw new InvalidParameterException("credentials cannot be null");
         } else {
@@ -79,7 +102,8 @@ public class Service {
                     .queryParam("sessionKey", credentials.getSessionKey())
                     .queryParam("botType", credentials.getBotType());
 
-            queueManger.add(new ServiceInvocation(webResource, requestEntity, method, responseClass));
+            webResource.queryParams(params);
+            queueManger.add(new ServiceInvocation<>(webResource, requestEntity, method, responseClass, serviceCallback));
         }
     }
 
@@ -91,5 +115,13 @@ public class Service {
             client = Client.create(clientConfig);
         }
         return client;
+    }
+
+    public void login(String username, String passwordHash, ServiceCallback<BasicResultResponse> serviceCallback) {
+        WebResource webResource = getClient().resource(baseURL + "/login")
+                .queryParam("username", username)
+                .queryParam("password", passwordHash);
+
+        queueManger.add(new ServiceInvocation<>(webResource, null, HttpMethod.POST, BasicResultResponse.class, serviceCallback));
     }
 }

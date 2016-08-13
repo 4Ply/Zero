@@ -38,6 +38,9 @@ public class DiscordChatAppConfig {
     @Value("${key.server.bot-chan.url}")
     private String botChanURL;
 
+    @Value("${key.platform}")
+    private String platform;
+
 
     @Bean
     public DiscordChatDatabase leagueChatDatabase() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
@@ -46,6 +49,6 @@ public class DiscordChatAppConfig {
 
     @Bean
     public DiscordChatManager discordChatManager() throws DiscordException {
-        return new DiscordChatManagerImpl(discordAPIKey, botChanURL);
+        return new DiscordChatManagerImpl(discordAPIKey, botChanURL, platform);
     }
 }

@@ -6,6 +6,4 @@ public interface ZeroCredentials {
     String getSessionKey();
 
     String getPasswordHash();
-
-    String getBotType();
 }

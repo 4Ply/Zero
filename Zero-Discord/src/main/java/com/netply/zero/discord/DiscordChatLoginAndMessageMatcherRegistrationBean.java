@@ -12,20 +12,20 @@ import javax.net.ssl.HttpsURLConnection;
 
 @Component
 public class DiscordChatLoginAndMessageMatcherRegistrationBean {
-    private String botChanUrl;
+    private String botChanURL;
 
     static {
         HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals("127.0.0.1"));
     }
 
     @Autowired
-    public DiscordChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanUrl) {
-        this.botChanUrl = botChanUrl;
+    public DiscordChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+        this.botChanURL = botChanURL;
     }
 
     @Async
     @PostConstruct
     public void loginToBotChan() {
-        Service.create(botChanUrl).login("test_user3", "$2y$10$PAlJzaGG0pdCJWz6f/W8FOHubkFEld3uwYJeYlHHxx.u7Rxl/4zFS", new BasicLoginCallback());
+        Service.create(botChanURL).login("test_user3", "$2y$10$PAlJzaGG0pdCJWz6f/W8FOHubkFEld3uwYJeYlHHxx.u7Rxl/4zFS", new BasicLoginCallback());
     }
 }

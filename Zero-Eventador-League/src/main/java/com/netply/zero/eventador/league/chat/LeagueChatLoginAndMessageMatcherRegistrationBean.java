@@ -48,11 +48,6 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
             public String getPasswordHash() {
                 return "$2y$10$PAlJzaGG0pdCJWz6f/W8FOHubkFEld3uwYJeYlHHxx.u7Rxl/4zFS";
             }
-
-            @Override
-            public String getBotType() {
-                return "Zero-Eventador-League";
-            }
         };
 
         Service.create(botChanUrl).login(credentials.getUsername(), credentials.getPasswordHash(), getServiceCallback(credentials));

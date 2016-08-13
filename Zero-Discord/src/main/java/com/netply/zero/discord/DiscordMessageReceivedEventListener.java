@@ -11,17 +11,19 @@ import java.util.logging.Logger;
 
 public class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
     private String botChanURL;
+    private String platform;
 
 
-    public DiscordMessageReceivedEventListener(String botChanURL) {
+    public DiscordMessageReceivedEventListener(String botChanURL, String platform) {
         this.botChanURL = botChanURL;
+        this.platform = platform;
     }
 
     public void handle(MessageReceivedEvent messageReceivedEvent) {
-        String name = messageReceivedEvent.getMessage().getAuthor().getName();
+        String sender = messageReceivedEvent.getMessage().getAuthor().getID();
         String content = messageReceivedEvent.getMessage().getContent();
-        Logger.getGlobal().log(Level.INFO, String.format("[Message] %s: %s\n", name, content));
-        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(null, content, name));
+        Logger.getGlobal().log(Level.INFO, String.format("[Message] %s: %s\n", sender, content));
+        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(null, platform, content, sender));
     }
 
 //    private static final Logger log = Log.getLogger();

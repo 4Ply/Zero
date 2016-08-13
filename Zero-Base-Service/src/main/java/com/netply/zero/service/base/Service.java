@@ -122,8 +122,7 @@ public class Service {
             Client client = getClient();
 
             WebResource webResource = client.resource(baseURL + url)
-                    .queryParam("sessionKey", credentials.getSessionKey())
-                    .queryParam("botType", credentials.getBotType());
+                    .queryParam("sessionKey", credentials.getSessionKey());
 
             webResource.queryParams(params);
 

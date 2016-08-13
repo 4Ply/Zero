@@ -15,9 +15,4 @@ public class BasicSessionCredentials implements ZeroCredentials {
     public String getPasswordHash() {
         return null;
     }
-
-    @Override
-    public String getBotType() {
-        return "";
-    }
 }

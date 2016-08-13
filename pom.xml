@@ -23,7 +23,8 @@
 
         <module>Zero-Discord</module>
         <module>Zero-League</module>
-        <module>Zero-League-Chat</module>
+
+        <module>Zero-Eventador-League</module>
     </modules>
 
     <build>

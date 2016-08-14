@@ -46,7 +46,7 @@ public class LeagueMessageBean {
     }
 
     private void trackPlayer(final Message message) {
-        String player = message.getMessage().replaceAll(ChatMatchers.TRACK_PLAYER_MATCHER.replace("(.*)", ""), "").trim();
+        String player = message.getMessage().replaceAll(ChatMatchers.TRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
         String url = String.format("/trackedPlayer?id=%s", String.valueOf(message.getSender()));
         Service.create(botChanURL).put(url, new BasicSessionCredentials(), new BasicMessageObject(0, player), new ServiceCallback<Object>() {
             @Override

@@ -6,7 +6,6 @@ import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.messaging.MessageUtil;
-import com.robrua.orianna.api.core.RiotAPI;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import com.robrua.orianna.type.core.currentgame.Participant;
 import com.sun.jersey.api.client.ClientResponse;
@@ -65,7 +64,7 @@ public class CurrentGameManager {
         };
 
         HashMap<String, CurrentGame> currentGameHashMap = new HashMap<>();
-        trackedPlayers.stream().forEach(s -> currentGameHashMap.put(s, RiotAPI.getCurrentGame(s)));
+        trackedPlayers.stream().forEach(s -> currentGameHashMap.put(s, League.getCurrentGame(s)));
         inGameSummonerListConsumer.accept(currentGameHashMap);
     }
 

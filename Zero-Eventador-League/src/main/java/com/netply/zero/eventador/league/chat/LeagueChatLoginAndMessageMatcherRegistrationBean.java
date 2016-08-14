@@ -5,12 +5,14 @@ import com.netply.botchan.web.model.MatcherList;
 import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
+import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.sun.jersey.api.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -96,5 +98,10 @@ public class LeagueChatLoginAndMessageMatcherRegistrationBean {
 
             }
         });
+    }
+
+    @Scheduled(initialDelay = 60000, fixedDelay = 60000)
+    public void registerMessageMatchers() {
+        registerMessageMatchers(new BasicSessionCredentials(), SessionManager.getClientID());
     }
 }

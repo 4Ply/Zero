@@ -1,6 +1,5 @@
 package com.netply.zero.discord.chat;
 
-import com.netply.core.logging.Log;
 import com.netply.zero.discord.DiscordMessageReceivedEventListener;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventDispatcher;
@@ -9,6 +8,8 @@ import sx.blah.discord.handle.obj.IPrivateChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
+
+import java.util.logging.Logger;
 
 public class DiscordChatManagerImpl implements DiscordChatManager {
     private final IDiscordClient discordClient;
@@ -37,7 +38,7 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
             pmChannel = discordClient.getOrCreatePMChannel(discordClient.getUserByID(uuid));
             pmChannel.sendMessage(message);
         } catch (DiscordException | HTTP429Exception | MissingPermissionsException e) {
-            Log.getLogger().severe(e.getMessage());
+            Logger.getGlobal().severe(e.getMessage());
             e.printStackTrace();
         }
     }

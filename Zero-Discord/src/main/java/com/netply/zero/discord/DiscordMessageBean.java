@@ -7,6 +7,7 @@ import com.netply.zero.discord.chat.DiscordChatManager;
 import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
+import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.netply.zero.service.base.messaging.MessageListener;
@@ -101,6 +102,11 @@ public class DiscordMessageBean {
 
             }
         });
+    }
+
+    @Scheduled(initialDelay = 60000, fixedDelay = 60000)
+    public void registerPlatformReplyMatchers() {
+        registerPlatformReplyMatchers(new BasicSessionCredentials(), SessionManager.getClientID());
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)

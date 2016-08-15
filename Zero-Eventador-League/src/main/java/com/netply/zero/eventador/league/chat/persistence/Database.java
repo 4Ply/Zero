@@ -87,4 +87,32 @@ public class Database implements LeagueChatDatabase {
         }
         return 0;
     }
+
+    @Override
+    public int updateGameState(String summonerName, long gameID) {
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement("INSERT INTO league_games (summoner_name, game_id, timestamp) VALUES (?, ?, NOW());")) {
+            preparedStatement.setString(1, summonerName);
+            preparedStatement.setLong(1, gameID);
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            Database.LOGGER.severe(e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public long getCurrentGameId(String summonerName) {
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement("SELECT game_id FROM league_games WHERE summoner_name = ? ORDER BY timestamp DESC LIMIT 1")) {
+            preparedStatement.setString(1, summonerName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong("game_id");
+            }
+        } catch (SQLException e) {
+            Database.LOGGER.severe(e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
 }

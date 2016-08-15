@@ -1,6 +1,7 @@
 package com.netply.zero.eventador.league.games;
 
 import com.netply.botchan.web.model.Message;
+import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
@@ -16,11 +17,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CurrentGameManager {
-    public static void sendCurrentGamesForTrackedPlayers(final Message message, final String botChanURL) {
-        String url = String.format("/trackedPlayers?id=%s", message.getSender());
-        Service.create(botChanURL).get(url, true, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+    public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final Message message, String platform) {
+        Service.create(botChanURL).post("/trackedPlayers", new BasicSessionCredentials(), new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
+                System.out.println(response.toString());
                 MessageUtil.reply(botChanURL, message, "Error retrieving your tracked players");
             }
 
@@ -45,8 +46,8 @@ public class CurrentGameManager {
 
                 Participant participant = getParticipant(summonerName, game);
                 if (participant != null) {
-                    String queueType = game.getQueueType() != null ? game.getQueueType().name() : "UNKNOWN_MODE";
                     String mapName = game.getMap() != null ? game.getMap().name() : "UNKNOWN_MAP";
+                    String queueType = game.getQueueType() != null ? game.getQueueType().name() : "UNKNOWN_MODE";
                     return String.format("\n%s (%s) - %s/%s", summonerName, participant.getChampion().getName(), mapName, queueType);
                 } else {
                     return String.format("\n%s", summonerName);

@@ -3,10 +3,8 @@ package com.netply.zero.eventador.league.chat;
 import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import com.robrua.orianna.api.core.RiotAPI;
 import com.robrua.orianna.type.core.common.Region;
-import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,17 +28,6 @@ public class LeagueGameController {
                 System.out.println(message);
                 leagueChatDatabase.processMessage(message.getId());
             });
-        }
-    }
-
-    @Async
-    @Scheduled(fixedDelay = 60000)
-    public void getCurrentPlayers() {
-        CurrentGame currentGame = RiotAPI.getCurrentGame("Icarus Dies");
-        if (currentGame != null) {
-            System.out.println(currentGame.toString());
-        } else {
-            System.out.println("Not in game");
         }
     }
 }

@@ -10,4 +10,8 @@ public interface LeagueChatDatabase {
     List<Message> getUnprocessedMessages();
 
     int processMessage(String id);
+
+    int updateGameState(String summonerName, long gameID);
+
+    long getCurrentGameId(String summonerName);
 }

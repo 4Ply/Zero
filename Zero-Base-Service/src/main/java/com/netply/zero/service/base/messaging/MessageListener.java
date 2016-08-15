@@ -1,5 +1,6 @@
 package com.netply.zero.service.base.messaging;
 
+import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Message;
 import com.netply.botchan.web.model.Reply;
 import com.netply.zero.service.base.ListUtil;
@@ -23,8 +24,8 @@ public class MessageListener {
         this.botChanURL = botChanURL;
     }
 
-    public void checkMessages(String url, final Consumer<Message> messageConsumer) {
-        checkSubscribedObjects(url, output -> {
+    public void checkMessages(String url, MatcherList matcherList, final Consumer<Message> messageConsumer) {
+        checkSubscribedObjects(url, matcherList, output -> {
             List<Message> messages = ListUtil.stringToArray(output, Message[].class);
             for (Message message : messages) {
                 System.out.println(message.toString());
@@ -35,8 +36,8 @@ public class MessageListener {
         });
     }
 
-    public void checkReplies(String url, final Consumer<Reply> replyConsumer) {
-        checkSubscribedObjects(url, output -> {
+    public void checkReplies(String url, MatcherList matcherList, final Consumer<Reply> replyConsumer) {
+        checkSubscribedObjects(url, matcherList, output -> {
             List<Reply> messages = ListUtil.stringToArray(output, Reply[].class);
             for (Reply reply : messages) {
                 System.out.println(reply.toString());
@@ -47,9 +48,9 @@ public class MessageListener {
         });
     }
 
-    private void checkSubscribedObjects(String url, Consumer<String> successConsumer) {
+    private void checkSubscribedObjects(String url, MatcherList matcherList, Consumer<String> successConsumer) {
         try {
-            Service.create(botChanURL).get(url, false, new BasicSessionCredentials(), null, new ServiceCallback<ArrayList>() {
+            Service.create(botChanURL).post(url, new BasicSessionCredentials(), matcherList, null, new ServiceCallback<ArrayList>() {
                 @Override
                 public void onError(ClientResponse response) {
                     Logger.getGlobal().log(Level.SEVERE, "Failed to get messages: " + response.getStatus());

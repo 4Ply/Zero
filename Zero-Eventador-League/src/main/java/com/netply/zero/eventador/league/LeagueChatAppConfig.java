@@ -1,4 +1,4 @@
-package com.netply.zero.eventador.league.chat;
+package com.netply.zero.eventador.league;
 
 import com.netply.zero.eventador.league.chat.persistence.Database;
 import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;

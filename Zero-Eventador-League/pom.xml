@@ -21,7 +21,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.netply.zero.eventador.league.chat.ZeroLeagueChatRunner</mainClass>
+                            <mainClass>com.netply.zero.eventador.league.ZeroLeagueChatRunner</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

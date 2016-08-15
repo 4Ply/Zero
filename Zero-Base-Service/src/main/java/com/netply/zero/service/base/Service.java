@@ -92,15 +92,19 @@ public class Service {
     }
 
     public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
-        exec(url, HttpMethod.GET, false, credentials, responseClass, null, serviceCallback, params);
+        exec(url, HttpMethod.GET, true, credentials, responseClass, null, serviceCallback, params);
     }
 
     public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
-        post(url, credentials, responseClass, requestEntity, new EmptyServiceCallback<>());
+        post(url, credentials, requestEntity, responseClass, new EmptyServiceCallback<>());
     }
 
-    public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
-        exec(url, HttpMethod.POST, false, credentials, responseClass, requestEntity, serviceCallback);
+    public <T> void post(String url, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        post(url, true, credentials, requestEntity, responseClass, serviceCallback);
+    }
+
+    public <T> void post(String url, boolean concurrent, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        exec(url, HttpMethod.POST, concurrent, credentials, responseClass, requestEntity, serviceCallback);
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity) {
@@ -108,7 +112,7 @@ public class Service {
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
-        exec(url, HttpMethod.PUT, false, credentials, null, requestEntity, serviceCallback);
+        exec(url, HttpMethod.PUT, true, credentials, null, requestEntity, serviceCallback);
     }
 
     public <T> void exec(String url, HttpMethod method, boolean concurrent, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {

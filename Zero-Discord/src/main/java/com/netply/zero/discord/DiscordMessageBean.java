@@ -111,8 +111,9 @@ public class DiscordMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForDiscordReplies() {
-        String url = String.format("/replies?id=%s", String.valueOf(SessionManager.getClientID()));
-        messageListener.checkReplies(url, this::parseReply);
+        ArrayList<String> platformMatchers = new ArrayList<>();
+        platformMatchers.add(platform);
+        messageListener.checkReplies("/replies", new MatcherList(SessionManager.getClientID(), platformMatchers), this::parseReply);
     }
 
     private void parseReply(Reply reply) {

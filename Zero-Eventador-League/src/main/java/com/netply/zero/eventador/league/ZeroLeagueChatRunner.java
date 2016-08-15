@@ -1,4 +1,4 @@
-package com.netply.zero.eventador.league.chat;
+package com.netply.zero.eventador.league;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +8,8 @@ import java.util.logging.Logger;
 
 @SpringBootApplication(scanBasePackages = {
         "com.netply.web.security.login.controller",
-        "com.netply.zero.eventador.league.chat"
+        "com.netply.zero.eventador.league",
+        "com.netply.zero.eventador.league.games"
 })
 public class ZeroLeagueChatRunner {
     public static void main(String[] args) {

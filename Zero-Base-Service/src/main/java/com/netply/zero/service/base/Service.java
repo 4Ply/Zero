@@ -9,6 +9,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
@@ -150,7 +151,11 @@ public class Service {
     }
 
     public void login(String username, String passwordHash, ServiceCallback<BasicResultResponse> serviceCallback) {
-        WebResource webResource = getClient().resource(baseURL + "/login")
+        Client client = getClient();
+        client.addFilter(new HTTPBasicAuthFilter(username, passwordHash));
+
+        WebResource webResource = client
+                .resource(baseURL + "/login")
                 .queryParam("username", username)
                 .queryParam("password", passwordHash);
 

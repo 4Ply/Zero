@@ -4,6 +4,8 @@ import com.netply.zero.discord.chat.DiscordChatManager;
 import com.netply.zero.discord.chat.DiscordChatManagerImpl;
 import com.netply.zero.discord.persistence.Database;
 import com.netply.zero.discord.persistence.DiscordChatDatabase;
+import com.netply.zero.discord.persistence.TrackedUserManager;
+import com.netply.zero.discord.persistence.TrackedUserManagerImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +51,11 @@ public class DiscordChatAppConfig {
 
     @Bean
     public DiscordChatManager discordChatManager() throws DiscordException {
-        return new DiscordChatManagerImpl(discordAPIKey, botChanURL, platform);
+        return new DiscordChatManagerImpl(discordAPIKey, botChanURL, trackedUserManager());
+    }
+
+    @Bean
+    public TrackedUserManager trackedUserManager() {
+        return new TrackedUserManagerImpl();
     }
 }

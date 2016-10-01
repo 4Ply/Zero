@@ -66,7 +66,7 @@ public class Database implements LeagueChatDatabase {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                messages.add(new Message(resultSet.getString("id"), "ALL", resultSet.getString("message"), resultSet.getString("target")));
+                messages.add(new Message(resultSet.getString("id"), resultSet.getString("message"), resultSet.getString("target")));
             }
             return messages;
         } catch (SQLException e) {
@@ -92,7 +92,7 @@ public class Database implements LeagueChatDatabase {
     public int updateGameState(String summonerName, long gameID) {
         try (PreparedStatement preparedStatement = getConnection().prepareStatement("INSERT INTO league_games (summoner_name, game_id, timestamp) VALUES (?, ?, NOW());")) {
             preparedStatement.setString(1, summonerName);
-            preparedStatement.setLong(1, gameID);
+            preparedStatement.setLong(2, gameID);
             return preparedStatement.executeUpdate();
         } catch (SQLException e) {
             Database.LOGGER.severe(e.getMessage());

@@ -74,7 +74,7 @@ public class MessageListener {
 
     private void deleteMessage(Message message, Consumer<Message> messageConsumer) {
         String deleteMessageURL = String.format("/message?clientID=%s&id=%s", String.valueOf(SessionManager.getClientID()), message.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, false, new BasicSessionCredentials(), new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -94,7 +94,7 @@ public class MessageListener {
 
     private void deleteReply(Reply reply, Consumer<Reply> replyConsumer) {
         String deleteMessageURL = String.format("/reply?clientID=%s&id=%s", String.valueOf(SessionManager.getClientID()), reply.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, false, new BasicSessionCredentials(), new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

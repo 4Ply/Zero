@@ -60,11 +60,11 @@ public class CurrentGameManager {
             } else {
                 response = "Here are the players currently in game: \n" + playersPlaying;
             }
-            System.out.println("DOING THE THING THAT I SHOULD JUST DO ONCE");
             MessageUtil.reply(botChanURL, message, response);
         };
 
         HashMap<String, CurrentGame> currentGameHashMap = new HashMap<>();
+        // TODO: 2016/10/01 Use DB to store this information as getting it from League.API will impact performance
         trackedPlayers.stream().forEach(s -> currentGameHashMap.put(s, League.getCurrentGame(s)));
         inGameSummonerListConsumer.accept(currentGameHashMap);
     }

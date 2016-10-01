@@ -1,10 +1,12 @@
 package com.netply.zero.discord.chat;
 
 import com.netply.zero.discord.DiscordMessageReceivedEventListener;
+import com.netply.zero.discord.persistence.TrackedUserManager;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IPrivateChannel;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -15,10 +17,10 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
     private final IDiscordClient discordClient;
 
 
-    public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, String platform) throws DiscordException {
+    public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, TrackedUserManager trackedUserManager) throws DiscordException {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
-        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, platform));
+        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager));
     }
 
     private IDiscordClient getClient(String token, boolean login) throws DiscordException {
@@ -33,10 +35,17 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
 
     @Override
     public void sendMessage(String uuid, String message) {
-        IPrivateChannel pmChannel;
+        IChannel pmChannel;
         try {
-            pmChannel = discordClient.getOrCreatePMChannel(discordClient.getUserByID(uuid));
-            pmChannel.sendMessage(message);
+            IUser userByID = discordClient.getUserByID(uuid);
+            if (userByID != null) {
+                pmChannel = discordClient.getOrCreatePMChannel(userByID);
+            } else {
+                pmChannel = discordClient.getChannelByID(uuid);
+            }
+            if (pmChannel != null) {
+                pmChannel.sendMessage(message);
+            }
         } catch (DiscordException | HTTP429Exception | MissingPermissionsException e) {
             Logger.getGlobal().severe(e.getMessage());
             e.printStackTrace();

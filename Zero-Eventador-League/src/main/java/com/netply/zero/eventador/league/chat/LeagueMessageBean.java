@@ -33,19 +33,19 @@ public class LeagueMessageBean {
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForLeagueMessages() {
         ArrayList<String> messageMatchers = new ArrayList<>();
-        messageMatchers.add("(.*)League(.*)");
+        messageMatchers.add(ChatMatchers.LEAGUE_MATCHER);
         messageMatchers.add(ChatMatchers.WHO_IS_PLAYING_MATCHER);
         messageMatchers.add(ChatMatchers.TRACK_PLAYER_MATCHER);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
     }
 
     private void parseMessage(Message message) {
-        String lowerCaseMessage = message.getMessage().toLowerCase();
-        if (lowerCaseMessage.equalsIgnoreCase("League?")) {
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getPlatform(), message.getSender(), "Sure!"));
-        } else if (lowerCaseMessage.matches(ChatMatchers.WHO_IS_PLAYING_MATCHER)) {
+        String messageText = message.getMessage();
+        if (messageText.matches(ChatMatchers.LEAGUE_MATCHER)) {
+            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Sure!"));
+        } else if (messageText.matches(ChatMatchers.WHO_IS_PLAYING_MATCHER)) {
             CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message, platform);
-        } else if (lowerCaseMessage.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
+        } else if (messageText.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
             trackPlayer(message);
         }
     }

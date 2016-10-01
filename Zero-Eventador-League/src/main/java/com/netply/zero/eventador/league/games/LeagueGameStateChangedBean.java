@@ -38,7 +38,7 @@ public class LeagueGameStateChangedBean {
 
     @Scheduled(fixedDelay = 30000)
     public void checkGameStates() {
-        Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", false, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+        Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -76,7 +76,7 @@ public class LeagueGameStateChangedBean {
         if (gameOptional.isPresent()) {
             Game game = gameOptional.get();
             String url = String.format("/trackers?player=%s&platform=%s", trackedPlayer, platform);
-            Service.create(botChanURL).get(url, false, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+            Service.create(botChanURL).get(url, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
                 @Override
                 public void onError(ClientResponse response) {
 
@@ -87,7 +87,7 @@ public class LeagueGameStateChangedBean {
                     List<User> users = ListUtil.stringToArray(output, User[].class);
                     for (User user : users) {
                         String replyMessage = String.format("%s just finished a %s game!", trackedPlayer, game.getType().name());
-                        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getPlatform(), user.getClientID(), replyMessage));
+                        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getClientID(), replyMessage));
                     }
                 }
 

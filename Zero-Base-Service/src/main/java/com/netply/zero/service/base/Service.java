@@ -34,20 +34,32 @@ public class Service {
         if (response.getStatus() != 200) {
             System.out.println("Request Data: " + element.getRequestEntity());
             Logger.getGlobal().log(Level.SEVERE, "Service call failed : HTTP error code : " + response.getStatus() + " | " + url + " \n" + element.getRequestEntity());
-            element.getServiceCallback().onError(response);
+            try {
+                element.getServiceCallback().onError(response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return;
         }
 
         String output = response.getEntity(String.class);
         System.out.println("Basic Response: " + output);
 
-        element.getServiceCallback().onSuccess(output);
+        try {
+            element.getServiceCallback().onSuccess(output);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (element.getResponseClass() != null) {
             Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
             if (parsedResponse != null) {
                 Logger.getGlobal().log(Level.FINER, parsedResponse.toString());
-                element.getServiceCallback().onSuccess(parsedResponse);
+                try {
+                    element.getServiceCallback().onSuccess(parsedResponse);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

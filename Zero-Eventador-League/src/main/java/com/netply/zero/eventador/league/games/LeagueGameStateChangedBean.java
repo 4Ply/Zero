@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,7 +77,13 @@ public class LeagueGameStateChangedBean {
         Optional<Game> gameOptional = RiotAPI.getRecentGames(trackedPlayer).stream().filter(game -> game.getID() == lastKnownGameId).findFirst();
         if (gameOptional.isPresent()) {
             Game game = gameOptional.get();
-            String url = String.format("/trackers?player=%s&platform=%s", trackedPlayer, platform);
+            String cleanTrackedPlayer = trackedPlayer;
+            try {
+                cleanTrackedPlayer = URLEncoder.encode(trackedPlayer, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            String url = String.format("/trackers?player=%s&platform=%s", cleanTrackedPlayer, platform);
             Service.create(botChanURL).get(url, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
                 @Override
                 public void onError(ClientResponse response) {
@@ -85,8 +93,10 @@ public class LeagueGameStateChangedBean {
                 @Override
                 public void onSuccess(String output) {
                     List<User> users = ListUtil.stringToArray(output, User[].class);
+                    boolean didWin = game.getStats().getWin();
+                    String replyMessage = String.format("%s just finished a game! (and %s) - they placed %s wards, and killed %s wards",
+                            trackedPlayer, didWin ? "WON" : "lost", game.getStats().getWardsPlaced(), game.getStats().getWardsKilled());
                     for (User user : users) {
-                        String replyMessage = String.format("%s just finished a %s game!", trackedPlayer, game.getType().name());
                         Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getClientID(), replyMessage));
                     }
                 }

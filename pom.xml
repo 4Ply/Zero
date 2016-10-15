@@ -23,6 +23,7 @@
 
         <module>Zero-Discord</module>
         <module>Zero-League</module>
+        <module>Zero-Music</module>
 
         <module>Zero-Eventador-League</module>
     </modules>

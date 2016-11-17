@@ -48,7 +48,7 @@ public class MessageListener {
         });
     }
 
-    private void checkSubscribedObjects(String url, MatcherList matcherList, Consumer<String> successConsumer) {
+    public void checkSubscribedObjects(String url, MatcherList matcherList, Consumer<String> successConsumer) {
         try {
             Service.create(botChanURL).post(url, new BasicSessionCredentials(), matcherList, null, new ServiceCallback<ArrayList>() {
                 @Override

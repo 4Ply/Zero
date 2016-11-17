@@ -26,6 +26,7 @@
         <module>Zero-Music</module>
 
         <module>Zero-Eventador-League</module>
+        <module>Zero-Scheduler</module>
     </modules>
 
     <build>

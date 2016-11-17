@@ -7,13 +7,20 @@ import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.messaging.MessageListener;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
 @Component
 public class MusicMessageBean {
@@ -31,22 +38,70 @@ public class MusicMessageBean {
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
-    public void checkForLeagueMessages() {
+    public void checkForMusicMessages() {
         ArrayList<String> messageMatchers = new ArrayList<>();
-        messageMatchers.add(ChatMatchers.MUSIC_MATCHER);
+        messageMatchers.add(ChatMatchers.PLAY_MUSIC_MATCHER);
+        messageMatchers.add(ChatMatchers.DOWNLOAD_MUSIC_MATCHER);
+        messageMatchers.add(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
     }
 
     private void parseMessage(Message message) {
         String messageText = message.getMessage();
-        if (messageText.matches(ChatMatchers.MUSIC_MATCHER)) {
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Sure!"));
-            String filePath = messageText.replaceAll(ChatMatchers.MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
-            playSong(filePath);
+        if (messageText.matches(ChatMatchers.PLAY_MUSIC_MATCHER)) {
+            String filePath = messageText.replaceAll(ChatMatchers.PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+            playSong(message, filePath);
+        } else if (messageText.matches(ChatMatchers.DOWNLOAD_MUSIC_MATCHER)) {
+            String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+            downloadSong(message, filePath);
+        } else if (messageText.matches(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER)) {
+            String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+            String outputFile = downloadSong(message, filePath);
+            if (outputFile != null) {
+                playSong(message, outputFile);
+            }
         }
     }
 
-    private void playSong(String filePath) {
+    private String downloadSong(Message message, String youtubeURL) {
+        try {
+            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Downloading " + youtubeURL));
+
+            Process process = Runtime.getRuntime().exec(new String[]{"youtube-dl", "--extract-audio", "--audio-format", "mp3",
+                    "-o", "/home/pawel/Music/%(title)s-%(id)s.%(ext)s", youtubeURL});
+            process.waitFor();
+
+            String output = "";
+            String outputFile = "unknown";
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output += line + "\n";
+                String charSequence = "[ffmpeg] Destination: ";
+                if (line.contains(charSequence)) {
+                    outputFile = line.replace(charSequence, "");
+                    if (outputFile.contains("/")) {
+                        String[] split = outputFile.split("/");
+                        outputFile = split[split.length - 1];
+                    }
+                }
+            }
+            System.out.println(output);
+            String reply;
+            if (output.contains("ERROR")) {
+                reply = "Something went wrong. I was unable to download that song";
+            } else {
+                reply = "Song downloaded! Saved as " + outputFile;
+            }
+            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), reply));
+            return outputFile;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void playSong(Message message, String filePath) {
         if (songProcess != null) {
 //            try {
 //                songProcess.getOutputStream().write("q\n".getBytes());
@@ -58,7 +113,21 @@ public class MusicMessageBean {
             songProcess.destroy();
         }
 //        songProcess = executeCommand(new String[]{"mpsyt", "playurl", filePath});
-        songProcess = executeCommand(new String[]{"cmus-remote", "-f", filePath});
+
+        File directory = new File("/home/pawel/Music");
+        System.out.println(Arrays.toString(directory.listFiles()));
+        Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
+        System.out.println(files);
+        Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().contains(filePath)).findFirst();
+        String reply;
+        if (fileOptional.isPresent()) {
+            File file = fileOptional.get();
+            reply = "Playing " + file.getName();
+            songProcess = executeCommand(new String[]{"cmus-remote", "-f", file.getAbsolutePath()});
+        } else {
+            reply = "I can't find any song containing the text '" + filePath + "'";
+        }
+        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), reply));
 
         Thread stopSongProcess = new Thread() {
             public void run() {

@@ -14,7 +14,7 @@
     </properties>
 
     <modules>
-        <module>Zero-Core-Runner</module>
+        <module>Zero-Base-Runner</module>
 
         <module>Zero-Base-Node</module>
         <module>Zero-Messaging-Base</module>

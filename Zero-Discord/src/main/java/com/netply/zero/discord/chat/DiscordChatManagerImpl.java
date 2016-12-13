@@ -1,5 +1,6 @@
 package com.netply.zero.discord.chat;
 
+import com.netply.zero.discord.DiscordDisconnectEventListener;
 import com.netply.zero.discord.DiscordMessageReceivedEventListener;
 import com.netply.zero.discord.persistence.TrackedUserManager;
 import sx.blah.discord.api.ClientBuilder;
@@ -14,13 +15,14 @@ import sx.blah.discord.util.MissingPermissionsException;
 import java.util.logging.Logger;
 
 public class DiscordChatManagerImpl implements DiscordChatManager {
-    private final IDiscordClient discordClient;
+    private IDiscordClient discordClient;
 
 
     public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, TrackedUserManager trackedUserManager) throws DiscordException {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
         dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager));
+        dispatcher.registerListener(new DiscordDisconnectEventListener(() -> DiscordChatManagerImpl.this.discordClient = getClient(discordAPIKey, true)));
     }
 
     private IDiscordClient getClient(String token, boolean login) throws DiscordException {

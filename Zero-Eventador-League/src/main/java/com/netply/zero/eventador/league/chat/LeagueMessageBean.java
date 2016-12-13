@@ -1,7 +1,9 @@
 package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.*;
+import com.netply.zero.eventador.league.Pair;
 import com.netply.zero.eventador.league.games.CurrentGameManager;
+import com.netply.zero.eventador.league.games.League;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
@@ -36,6 +38,7 @@ public class LeagueMessageBean {
         messageMatchers.add(ChatMatchers.LEAGUE_MATCHER);
         messageMatchers.add(ChatMatchers.WHO_IS_PLAYING_MATCHER);
         messageMatchers.add(ChatMatchers.TRACK_PLAYER_MATCHER);
+        messageMatchers.add(ChatMatchers.CHECK_ELO_MATCHER);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
     }
 
@@ -47,6 +50,8 @@ public class LeagueMessageBean {
             CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message, platform);
         } else if (messageText.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
             trackPlayer(message);
+        } else if (messageText.matches(ChatMatchers.CHECK_ELO_MATCHER)) {
+            checkElo(message);
         }
     }
 
@@ -70,5 +75,14 @@ public class LeagueMessageBean {
 
             }
         });
+    }
+
+    private void checkElo(Message message) {
+        String player = message.getMessage().replaceAll(ChatMatchers.CHECK_ELO_MATCHER.replace(" (.*)", ""), "").trim();
+        String rankedStats = "";
+        for (Pair<String, String> tierQueueTypeImmutablePair : League.getPlayerElo(player)) {
+            rankedStats += tierQueueTypeImmutablePair.getLeft() + " - " + tierQueueTypeImmutablePair.getRight() + "\n";
+        }
+        MessageUtil.reply(botChanURL, message, player + " has the following ranked stats:" + "\n" + rankedStats.trim());
     }
 }

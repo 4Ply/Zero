@@ -4,6 +4,7 @@ import com.netply.botchan.web.model.*;
 import com.netply.zero.eventador.league.Pair;
 import com.netply.zero.eventador.league.games.CurrentGameManager;
 import com.netply.zero.eventador.league.games.League;
+import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class LeagueMessageBean {
@@ -39,6 +41,7 @@ public class LeagueMessageBean {
         messageMatchers.add(ChatMatchers.WHO_IS_PLAYING_MATCHER);
         messageMatchers.add(ChatMatchers.TRACK_PLAYER_MATCHER);
         messageMatchers.add(ChatMatchers.CHECK_ELO_MATCHER);
+        messageMatchers.add(ChatMatchers.WHO_AM_I_TRACKING_MATCHER);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
     }
 
@@ -52,6 +55,8 @@ public class LeagueMessageBean {
             trackPlayer(message);
         } else if (messageText.matches(ChatMatchers.CHECK_ELO_MATCHER)) {
             checkElo(message);
+        } else if (messageText.matches(ChatMatchers.WHO_AM_I_TRACKING_MATCHER)) {
+            sendTrackedPlayersList(message);
         }
     }
 
@@ -84,5 +89,35 @@ public class LeagueMessageBean {
             rankedStats += tierQueueTypeImmutablePair.getLeft() + " - " + tierQueueTypeImmutablePair.getRight() + "\n";
         }
         MessageUtil.reply(botChanURL, message, player + " has the following ranked stats:" + "\n" + rankedStats.trim());
+    }
+
+    private void sendTrackedPlayersList(Message message) {
+        Service.create(botChanURL).post("/trackedPlayers", new BasicSessionCredentials(), new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
+            @Override
+            public void onError(ClientResponse response) {
+                System.out.println(response.toString());
+                MessageUtil.reply(botChanURL, message, "Error retrieving your tracked players");
+            }
+
+            @Override
+            public void onSuccess(String output) {
+                List<String> trackedPlayers = ListUtil.stringToArray(output, String[].class);
+
+                if (trackedPlayers.isEmpty()) {
+                    MessageUtil.reply(botChanURL, message, " You are not tracking any players");
+                } else {
+                    String trackedPlayersString = "";
+                    for (String trackedPlayer : trackedPlayers) {
+                        trackedPlayersString += trackedPlayer + "\n";
+                    }
+                    MessageUtil.reply(botChanURL, message, " You are tracking the following players: \n" + trackedPlayersString.trim());
+                }
+            }
+
+            @Override
+            public void onSuccess(Object parsedResponse) {
+
+            }
+        });
     }
 }

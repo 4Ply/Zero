@@ -6,6 +6,7 @@ import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
@@ -128,6 +129,8 @@ public class Service {
         if (client == null) {
             DefaultClientConfig clientConfig = new DefaultClientConfig();
             clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+            clientConfig.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
+            clientConfig.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
 
             client = Client.create(clientConfig);
         }

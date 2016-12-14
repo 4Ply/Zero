@@ -30,19 +30,21 @@ public class Service {
         System.out.println(element.getMethod().name() + " | " + url);
         System.out.println("Request Data: " + element.getRequestEntity());
 
-        ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
+        try {
+            ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
 
-        if (response.getStatus() != 200) {
-            System.out.println("Request Data: " + element.getRequestEntity());
-            Logger.getGlobal().log(Level.SEVERE, "Service call failed : HTTP error code : " + response.getStatus() + " | " + url + " \n" + element.getRequestEntity());
-            try {
-                element.getServiceCallback().onError(response);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (response.getStatus() == 200) {
+                processSuccess(element, response);
+            } else {
+                processError(element, url, response);
             }
-            return;
+        } catch (Exception e) {
+            Logger.getGlobal().severe(e.getMessage());
+            e.printStackTrace();
         }
+    }
 
+    private static void processSuccess(ServiceInvocation element, ClientResponse response) {
         String output = response.getEntity(String.class);
         System.out.println("Basic Response: " + output);
 
@@ -52,6 +54,10 @@ public class Service {
             e.printStackTrace();
         }
 
+        processComplexResult(element, output);
+    }
+
+    private static void processComplexResult(ServiceInvocation element, String output) {
         if (element.getResponseClass() != null) {
             Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
             if (parsedResponse != null) {
@@ -62,6 +68,16 @@ public class Service {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private static void processError(ServiceInvocation element, String url, ClientResponse response) {
+        System.out.println("Request Data: " + element.getRequestEntity());
+        Logger.getGlobal().log(Level.SEVERE, "Service call failed : HTTP error code : " + response.getStatus() + " | " + url + " \n" + element.getRequestEntity());
+        try {
+            element.getServiceCallback().onError(response);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

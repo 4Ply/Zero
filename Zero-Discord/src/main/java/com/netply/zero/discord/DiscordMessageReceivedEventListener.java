@@ -4,6 +4,7 @@ import com.netply.botchan.web.model.Message;
 import com.netply.zero.discord.persistence.TrackedUserManager;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
+import com.netply.zero.service.base.credentials.SessionManager;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 
@@ -28,7 +29,8 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
             sender = messageReceivedEvent.getMessage().getChannel().getID();
         }
         trackedUserManager.addUser(sender);
-        Service.create(botChanURL).put("/message", new BasicSessionCredentials(), new Message(null, content, sender));
+        String url = String.format("/message?clientID=%s", String.valueOf(SessionManager.getClientID()));
+        Service.create(botChanURL).put(url, new BasicSessionCredentials(), new Message(null, content, sender));
     }
 
 //    private static final Logger log = Log.getLogger();

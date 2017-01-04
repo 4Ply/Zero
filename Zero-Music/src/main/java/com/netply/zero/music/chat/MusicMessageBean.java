@@ -43,6 +43,7 @@ public class MusicMessageBean {
         messageMatchers.add(ChatMatchers.PLAY_MUSIC_MATCHER);
         messageMatchers.add(ChatMatchers.DOWNLOAD_MUSIC_MATCHER);
         messageMatchers.add(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
+        messageMatchers.add(ChatMatchers.STOP_PLAYING);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
     }
 
@@ -60,6 +61,8 @@ public class MusicMessageBean {
             if (outputFile != null) {
                 playSong(message, outputFile);
             }
+        } else if (messageText.matches(ChatMatchers.STOP_PLAYING)) {
+            executeCommand(new String[]{"cmus-remote", "-s"});
         }
     }
 
@@ -78,11 +81,18 @@ public class MusicMessageBean {
             while ((line = reader.readLine()) != null) {
                 output += line + "\n";
                 String charSequence = "[ffmpeg] Destination: ";
+                String alreadyDownloaded = " has already been downloaded";
                 if (line.contains(charSequence)) {
                     outputFile = line.replace(charSequence, "");
                     if (outputFile.contains("/")) {
                         String[] split = outputFile.split("/");
                         outputFile = split[split.length - 1];
+                    }
+                } else if (line.contains(alreadyDownloaded)) {
+                    outputFile = line.replace(alreadyDownloaded, "").replace("[download] ", "");
+                    if (outputFile.contains("/")) {
+                        String[] split = outputFile.split("/");
+                        outputFile = split[split.length - 1].split("\\.")[0];
                     }
                 }
             }
@@ -125,7 +135,7 @@ public class MusicMessageBean {
             reply = "Playing " + file.getName();
             songProcess = executeCommand(new String[]{"cmus-remote", "-f", file.getAbsolutePath()});
         } else {
-            reply = "I can't find any song containing the text '" + filePath + "'";
+            reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
         Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), reply));
 

@@ -128,7 +128,7 @@ public class MusicMessageBean {
         System.out.println(Arrays.toString(directory.listFiles()));
         Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
         System.out.println(files);
-        Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().contains(filePath)).findFirst();
+        Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().toLowerCase().contains(filePath.toLowerCase())).findFirst();
         String reply;
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();

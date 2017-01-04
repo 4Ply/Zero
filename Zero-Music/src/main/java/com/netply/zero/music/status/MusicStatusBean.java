@@ -12,9 +12,9 @@ import java.util.List;
 @RestController
 public class MusicStatusBean {
     @RequestMapping(value = "/status", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody List<Status> getReplies() {
+    public @ResponseBody List<Status> getStatus() {
         ArrayList<Status> statuses = new ArrayList<>();
-        statuses.add(new Status("initDate", StatusUtil.getInitDate().toString()));
+        statuses.add(new Status("initDate", String.valueOf(StatusUtil.getInitDate())));
         return statuses;
     }
 }

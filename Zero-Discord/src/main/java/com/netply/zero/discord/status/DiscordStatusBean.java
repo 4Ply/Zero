@@ -12,10 +12,10 @@ import java.util.List;
 @RestController
 public class DiscordStatusBean {
     @RequestMapping(value = "/status", produces = "application/json", method = RequestMethod.GET)
-    public @ResponseBody List<Status> getReplies() {
+    public @ResponseBody List<Status> getStatus() {
         ArrayList<Status> statuses = new ArrayList<>();
-        statuses.add(new Status("initDate", StatusUtil.getInitDate().toString()));
-        statuses.add(new Status("lastReceivedMessageDate", StatusUtil.getLastMessageReceivedDate().toString()));
+        statuses.add(new Status("initDate", String.valueOf(StatusUtil.getInitDate())));
+        statuses.add(new Status("lastReceivedMessageDate", String.valueOf(StatusUtil.getLastMessageReceivedDate())));
         statuses.add(new Status("receivedMessages", String.valueOf(StatusUtil.getReceivedMessages())));
         return statuses;
     }

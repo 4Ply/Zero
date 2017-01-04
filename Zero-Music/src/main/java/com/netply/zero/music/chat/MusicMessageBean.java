@@ -8,6 +8,7 @@ import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.messaging.MessageListener;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -63,7 +64,7 @@ public class MusicMessageBean {
                 playSong(message, outputFile);
             }
         } else if (messageText.matches(ChatMatchers.STOP_PLAYING)) {
-            executeCommand(new String[]{"cmus-remote", "-s"});
+            executeCmusCommand(new String[]{"-s"});
         }
     }
 
@@ -134,7 +135,7 @@ public class MusicMessageBean {
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
             reply = "Playing " + file.getName();
-            songProcess = executeCommand(new String[]{"cmus-remote", "--server", "192.168.2.37:8545", "--passwd", "so-very-cmus", "-f", file.getAbsolutePath()});
+            songProcess = executeCmusCommand(new String[]{"-f", file.getAbsolutePath()});
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
@@ -149,6 +150,10 @@ public class MusicMessageBean {
         };
 
         Runtime.getRuntime().addShutdownHook(stopSongProcess);
+    }
+
+    private Process executeCmusCommand(String[] command) {
+        return executeCommand(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", "192.168.2.37:8545", "--passwd", "so-very-cmus"}, command));
     }
 
     private Process executeCommand(String[] command) {

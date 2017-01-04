@@ -133,7 +133,7 @@ public class MusicMessageBean {
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
             reply = "Playing " + file.getName();
-            songProcess = executeCommand(new String[]{"cmus-remote", "-f", file.getAbsolutePath()});
+            songProcess = executeCommand(new String[]{"cmus-remote", "--server", "192.168.2.37:8545", "--passwd", "so-very-cmus", "-f", file.getAbsolutePath()});
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }

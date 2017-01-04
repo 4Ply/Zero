@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 })
 public class ZeroMusicRunner {
     public static void main(String[] args) {
-        StatusUtil.setInitDate(new Date());
         Logger.getGlobal().setLevel(Level.ALL);
+        StatusUtil.setInitDate(new Date());
         SpringApplication.run(ZeroMusicRunner.class, args);
     }
 }

@@ -2,12 +2,14 @@ package com.netply.zero.discord;
 
 import com.netply.botchan.web.model.Message;
 import com.netply.zero.discord.persistence.TrackedUserManager;
+import com.netply.zero.discord.status.StatusUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,52 +33,7 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
         trackedUserManager.addUser(sender);
         String url = String.format("/message?clientID=%s", String.valueOf(SessionManager.getClientID()));
         Service.create(botChanURL).put(url, new BasicSessionCredentials(), new Message(null, content, sender));
+        StatusUtil.setLastMessageReceivedDate(new Date());
+        StatusUtil.incrementReceivedMessagesCounter();
     }
-
-//    private static final Logger log = Log.getLogger();
-//    private ArrayList<NameFilterMessageHandler> messageHandlers = new ArrayList<>();
-//
-//
-//    public DiscordMessageReceivedEventListener() {
-//        messageHandlers.add(new HateMessageHandler());
-//        messageHandlers.add(new HelloMessageHandler());
-//        messageHandlers.add(new GreetingMessageHandler());
-//        messageHandlers.add(new DropThatBaseMessageHandler());
-//        messageHandlers.add(new GoodWorkMessageHandler());
-//        messageHandlers.add(new GoAwayMessageHandler());
-//        messageHandlers.add(new NekoChanMessageHandler());
-//
-//        messageHandlers.addAll(LeagueMessageHandlerProvider.getAllLeagueMessageHandlers());
-//        messageHandlers.addAll(MangaMessageHandlerProvider.getAllMangaHandlers());
-//        messageHandlers.addAll(SubtleMessageHandlerProvider.getSubtleHandlers());
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    @Override
-//    public void handle(MessageReceivedEvent event) {
-//        String message = event.getMessage().getContent();
-//        log.info(String.format("Discord message: [%s] %s", event.getMessage().getAuthor().getName(), message));
-//        Database.getInstance().addToQueue(statement -> Database.logIncomingDiscordMessage(statement, event.getMessage()), null);
-//        String cleanMessage = message.toLowerCase().replaceAll("[^a-zA-Z\\s-]", "").replaceAll("\\s+", " ");
-//
-//        messageHandlers.stream().filter(isMessageValid(message, cleanMessage))
-//                .filter(whatsAppMessageHandler -> !(whatsAppMessageHandler.isNameRequired() && !event.getMessage().getChannel().isPrivate())
-//                        || Self.containsName(message) || Self.containsName(event.getMessage()))
-//                .forEach(messageHandler -> {
-//                    log.info("Invoking message handler: " + messageHandler.getClass().getName());
-//                    messageHandler.parse(new ReceivedDiscordMessage(event.getMessage(), event.getClient(), event.getMessage().getContent()));
-//                });
-//
-//        MessageQueue.getInstance().add(new ReceivedDiscordMessage(event.getMessage(), event.getClient(), message));
-//    }
-//
-//    private Predicate<NameFilterMessageHandler> isMessageValid(String message, String cleanMessage) {
-//        return messageHandler -> {
-//            if (messageHandler.isCleanMessageRequired()) {
-//                return messageHandler.isValid(cleanMessage);
-//            } else {
-//                return messageHandler.isValid(message.toLowerCase());
-//            }
-//        };
-//    }
 }

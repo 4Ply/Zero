@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @Component
 public class MusicMessageBean {
+    public static final String MUSIC_DIR = "/Music";
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;
@@ -71,7 +72,7 @@ public class MusicMessageBean {
             Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Downloading " + youtubeURL));
 
             Process process = Runtime.getRuntime().exec(new String[]{"youtube-dl", "--extract-audio", "--audio-format", "mp3",
-                    "-o", "/home/pawel/Music/%(title)s-%(id)s.%(ext)s", youtubeURL});
+                    "-o", MUSIC_DIR + "/%(title)s-%(id)s.%(ext)s", youtubeURL});
             process.waitFor();
 
             String output = "";
@@ -124,7 +125,7 @@ public class MusicMessageBean {
         }
 //        songProcess = executeCommand(new String[]{"mpsyt", "playurl", filePath});
 
-        File directory = new File("/home/pawel/Music");
+        File directory = new File(MUSIC_DIR);
         System.out.println(Arrays.toString(directory.listFiles()));
         Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
         System.out.println(files);

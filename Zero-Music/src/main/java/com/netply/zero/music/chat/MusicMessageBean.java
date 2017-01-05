@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @Component
 public class MusicMessageBean {
-    public static final String MUSIC_DIR = "/Music";
+    public static final String MUSIC_DIR = "/Music/";
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;
@@ -73,7 +73,7 @@ public class MusicMessageBean {
             Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Downloading " + youtubeURL));
 
             Process process = Runtime.getRuntime().exec(new String[]{"youtube-dl", "--extract-audio", "--audio-format", "mp3",
-                    "-o", MUSIC_DIR + "/%(title)s-%(id)s.%(ext)s", youtubeURL});
+                    "-o", MUSIC_DIR + "%(title)s-%(id)s.%(ext)s", youtubeURL});
             process.waitFor();
 
             String output = "";

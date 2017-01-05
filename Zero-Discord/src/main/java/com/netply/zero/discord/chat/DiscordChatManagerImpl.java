@@ -22,7 +22,7 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
         dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager));
-        dispatcher.registerListener(new DiscordDisconnectEventListener(() -> DiscordChatManagerImpl.this.discordClient = getClient(discordAPIKey, true)));
+        dispatcher.registerListener(new DiscordDisconnectEventListener(() -> System.exit(-1)));
     }
 
     private IDiscordClient getClient(String token, boolean login) throws DiscordException {

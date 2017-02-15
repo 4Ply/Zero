@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @Component
 public class MusicMessageBean {
-    public static final String MUSIC_DIR = "/Music/";
+    public static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;

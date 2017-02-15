@@ -153,7 +153,7 @@ public class MusicMessageBean {
     }
 
     private Process executeCmusCommand(String[] command) {
-        return executeCommand(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", "192.168.2.37:8545", "--passwd", "so-very-cmus"}, command));
+        return executeCommand(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", "/sock/cmus-socket"}, command));
     }
 
     private Process executeCommand(String[] command) {

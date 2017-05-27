@@ -13,6 +13,7 @@ import com.robrua.orianna.type.core.game.Game;
 import com.sun.jersey.api.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,7 @@ public class LeagueGameStateChangedBean {
     }
 
     @Scheduled(fixedDelay = 30000)
+    @Async
     public void checkGameStates() {
         Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
             @Override

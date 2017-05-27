@@ -94,7 +94,11 @@ public class Service {
     }
 
     public void delete(String url, ZeroCredentials credentials, ServiceCallback<Object> serviceCallback) {
-        exec(url, HttpMethod.DELETE, credentials, null, null, serviceCallback);
+        delete(url, credentials, null, serviceCallback);
+    }
+
+    public void delete(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
+        exec(url, HttpMethod.DELETE, credentials, null, requestEntity, serviceCallback);
     }
 
     public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {

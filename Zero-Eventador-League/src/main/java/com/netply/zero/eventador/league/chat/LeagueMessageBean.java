@@ -40,6 +40,7 @@ public class LeagueMessageBean {
         messageMatchers.add(ChatMatchers.LEAGUE_MATCHER);
         messageMatchers.add(ChatMatchers.WHO_IS_PLAYING_MATCHER);
         messageMatchers.add(ChatMatchers.TRACK_PLAYER_MATCHER);
+        messageMatchers.add(ChatMatchers.UNTRACK_PLAYER_MATCHER);
         messageMatchers.add(ChatMatchers.CHECK_ELO_MATCHER);
         messageMatchers.add(ChatMatchers.WHO_AM_I_TRACKING_MATCHER);
         messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
@@ -53,6 +54,8 @@ public class LeagueMessageBean {
             CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message, platform);
         } else if (messageText.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
             trackPlayer(message);
+        } else if (messageText.matches(ChatMatchers.UNTRACK_PLAYER_MATCHER)) {
+            unTrackPlayer(message);
         } else if (messageText.matches(ChatMatchers.CHECK_ELO_MATCHER)) {
             checkElo(message);
         } else if (messageText.matches(ChatMatchers.WHO_AM_I_TRACKING_MATCHER)) {
@@ -72,7 +75,29 @@ public class LeagueMessageBean {
 
             @Override
             public void onSuccess(String output) {
-                MessageUtil.reply(botChanURL, message, String.format("%s added to your tracked players", player));
+                MessageUtil.reply(botChanURL, message, String.format("%s has been added to your tracked players", player));
+            }
+
+            @Override
+            public void onSuccess(Object parsedResponse) {
+
+            }
+        });
+    }
+
+    private void unTrackPlayer(final Message message) {
+        String player = message.getMessage().replaceAll(ChatMatchers.UNTRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
+        TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(new User(String.valueOf(message.getSender()), platform), player);
+
+        Service.create(botChanURL).delete("/trackedPlayer", new BasicSessionCredentials(), trackPlayerRequest, new ServiceCallback<Object>() {
+            @Override
+            public void onError(ClientResponse response) {
+                MessageUtil.reply(botChanURL, message, "An unknown error has occurred. I was unable to untrack that player");
+            }
+
+            @Override
+            public void onSuccess(String output) {
+                MessageUtil.reply(botChanURL, message, String.format("%s has been removed from your tracked players", player));
             }
 
             @Override

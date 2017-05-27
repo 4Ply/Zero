@@ -11,6 +11,7 @@ public class BasicLoginCallback implements ServiceCallback<BasicResultResponse> 
     @Override
     public void onError(ClientResponse response) {
         Logger.getGlobal().log(Level.SEVERE, response.toString());
+        System.exit(-response.getStatus());
         throw new RuntimeException("Unable to authenticate with Bot-chan! Error code: " + response.getStatus());
     }
 

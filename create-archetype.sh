@@ -5,7 +5,7 @@ mvn archetype:generate                      \
 	-DarchetypeArtifactId=Zero-Archetype    \
 	-DarchetypeVersion=1.0-SNAPSHOT         \
 	-DgroupId=com.netply                    \
-	-DartifactId=Zero-Test-gen              \
 	-Dversion=1.0-SNAPSHOT              \
+	-DartifactId=Zero-Test              \
 	-Dpackage=test              \
-	-DclassPrefix=Test
+	-DclassPrefix=test

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="basic">
+    <fileSets>
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java/com/netply/zero</directory>
+            <includes>
+                <include>**/*.java</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+    <requiredProperties>
+        <requiredProperty key="classPrefix">
+            <defaultValue>
+                ${artifactId.substring(0,1).toUpperCase()}${artifactId.substring(1)}
+            </defaultValue>
+        </requiredProperty>
+
+        <requiredProperty key="package"/>
+    </requiredProperties>
+
+</archetype-descriptor>

@@ -1,0 +1,10 @@
+<archetype>
+    <id>Zero-Archetype</id>
+    <sources>
+        <source>src/main/java/zero/__nodeName__AppConfig.java</source>
+        <source>src/main/java/zero/__nodeName__AppRunner.java</source>
+    </sources>
+    <testSources>
+        <source>src/test/java/zero/AppTest.java</source>
+    </testSources>
+</archetype>

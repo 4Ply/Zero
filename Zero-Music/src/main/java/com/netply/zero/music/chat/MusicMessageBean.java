@@ -24,18 +24,16 @@ import java.util.function.Consumer;
 
 @Component
 public class MusicMessageBean {
-    public static final String MUSIC_DIR = "/home/pawel/Music/";
+    private static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
-    private String platform;
     private MessageListener messageListener;
     private Process songProcess;
     private Map<String, Consumer<Message>> messageMatchers;
 
 
     @Autowired
-    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
+    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
         messageListener = new MessageListener(this.botChanURL);
         initMessageMatchers();
     }
@@ -53,7 +51,7 @@ public class MusicMessageBean {
 
     private void downloadAndPlay(Message message) {
         String messageText = message.getMessage();
-        String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        String filePath = removeMatcherText(messageText, ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
         String outputFile = downloadSong(message, filePath);
         if (outputFile != null) {
             playSong(message, outputFile);
@@ -62,13 +60,13 @@ public class MusicMessageBean {
 
     private void download(Message message) {
         String messageText = message.getMessage();
-        String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        String filePath = removeMatcherText(messageText, ChatMatchers.DOWNLOAD_MUSIC_MATCHER);
         downloadSong(message, filePath);
     }
 
     private void playSong(Message message) {
         String messageText = message.getMessage();
-        String filePath = messageText.replaceAll(ChatMatchers.PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        String filePath = removeMatcherText(messageText, ChatMatchers.PLAY_MUSIC_MATCHER);
         playSong(message, filePath);
     }
 
@@ -80,6 +78,10 @@ public class MusicMessageBean {
     private void skipSong(Message message) {
         executeCmusCommand(new String[]{"-n"});
         MessageUtil.reply(botChanURL, message, "Track skipped!");
+    }
+
+    private String removeMatcherText(String messageText, String matcher) {
+        return messageText.replaceAll(matcher.replace("(.*)", "").replace("(.*)", ""), "").trim();
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)

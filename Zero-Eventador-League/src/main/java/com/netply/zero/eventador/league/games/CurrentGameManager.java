@@ -65,7 +65,7 @@ public class CurrentGameManager {
 
         HashMap<String, CurrentGame> currentGameHashMap = new HashMap<>();
         // TODO: 2016/10/01 Use DB to store this information as getting it from League.API will impact performance
-        trackedPlayers.stream().forEach(s -> currentGameHashMap.put(s, League.getCurrentGame(s)));
+        trackedPlayers.forEach(s -> currentGameHashMap.put(s, League.getCurrentGame(s)));
         inGameSummonerListConsumer.accept(currentGameHashMap);
     }
 

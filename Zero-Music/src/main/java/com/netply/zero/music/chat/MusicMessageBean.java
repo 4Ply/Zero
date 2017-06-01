@@ -7,6 +7,7 @@ import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.messaging.MessageListener;
+import com.netply.zero.service.base.messaging.MessageUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +43,12 @@ public class MusicMessageBean {
     private void initMessageMatchers() {
         messageMatchers = new HashMap<>();
         messageMatchers.put(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER, this::downloadAndPlay);
+        messageMatchers.put(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER_SHORTCUT, this::downloadAndPlay);
+        messageMatchers.put(ChatMatchers.DOWNLOAD_MUSIC_MATCHER, this::download);
         messageMatchers.put(ChatMatchers.DOWNLOAD_MUSIC_MATCHER, this::download);
         messageMatchers.put(ChatMatchers.PLAY_MUSIC_MATCHER, this::playSong);
-        messageMatchers.put(ChatMatchers.STOP_PLAYING, message -> stopPlayback());
-        messageMatchers.put(ChatMatchers.SKIP_SONG, message -> skipSong());
+        messageMatchers.put(ChatMatchers.STOP_PLAYING, this::stopPlayback);
+        messageMatchers.put(ChatMatchers.SKIP_SONG, this::skipSong);
     }
 
     private void downloadAndPlay(Message message) {
@@ -69,12 +72,14 @@ public class MusicMessageBean {
         playSong(message, filePath);
     }
 
-    private void stopPlayback() {
+    private void stopPlayback(Message message) {
         executeCmusCommand(new String[]{"-s"});
+        MessageUtil.reply(botChanURL, message, "Playback stopped.");
     }
 
-    private void skipSong() {
+    private void skipSong(Message message) {
         executeCmusCommand(new String[]{"-n"});
+        MessageUtil.reply(botChanURL, message, "Track skipped!");
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)

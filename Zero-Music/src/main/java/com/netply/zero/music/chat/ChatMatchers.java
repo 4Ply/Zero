@@ -5,11 +5,13 @@ public class ChatMatchers {
     public static final String DOWNLOAD_MUSIC_MATCHER = "(?i)(.*)Download song(.*)";
     public static final String DOWNLOAD_AND_PLAY_MUSIC_MATCHER = "(?i)(.*)Download and play(.*)";
     public static final String STOP_PLAYING = "(?i)(.*)Stop (playing|playback)(.*)";
+    public static final String SKIP_SONG = "(?i)(.*)Skip (playing|playback|song|track|this)(.*)";
 
     static {
         "".matches(PLAY_MUSIC_MATCHER);
         "".matches(DOWNLOAD_MUSIC_MATCHER);
         "".matches(DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
         "".matches(STOP_PLAYING);
+        "".matches(SKIP_SONG);
     }
 }

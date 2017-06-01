@@ -18,10 +18,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Component
 public class MusicMessageBean {
@@ -30,6 +28,7 @@ public class MusicMessageBean {
     private String platform;
     private MessageListener messageListener;
     private Process songProcess;
+    private Map<String, Consumer<Message>> messageMatchers;
 
 
     @Autowired
@@ -37,35 +36,57 @@ public class MusicMessageBean {
         this.botChanURL = botChanURL;
         this.platform = platform;
         messageListener = new MessageListener(this.botChanURL);
+        initMessageMatchers();
+    }
+
+    private void initMessageMatchers() {
+        messageMatchers = new HashMap<>();
+        messageMatchers.put(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER, this::downloadAndPlay);
+        messageMatchers.put(ChatMatchers.DOWNLOAD_MUSIC_MATCHER, this::download);
+        messageMatchers.put(ChatMatchers.PLAY_MUSIC_MATCHER, this::playSong);
+        messageMatchers.put(ChatMatchers.STOP_PLAYING, message -> stopPlayback());
+        messageMatchers.put(ChatMatchers.SKIP_SONG, message -> skipSong());
+    }
+
+    private void downloadAndPlay(Message message) {
+        String messageText = message.getMessage();
+        String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        String outputFile = downloadSong(message, filePath);
+        if (outputFile != null) {
+            playSong(message, outputFile);
+        }
+    }
+
+    private void download(Message message) {
+        String messageText = message.getMessage();
+        String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        downloadSong(message, filePath);
+    }
+
+    private void playSong(Message message) {
+        String messageText = message.getMessage();
+        String filePath = messageText.replaceAll(ChatMatchers.PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
+        playSong(message, filePath);
+    }
+
+    private void stopPlayback() {
+        executeCmusCommand(new String[]{"-s"});
+    }
+
+    private void skipSong() {
+        executeCmusCommand(new String[]{"-n"});
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMusicMessages() {
-        ArrayList<String> messageMatchers = new ArrayList<>();
-        messageMatchers.add(ChatMatchers.PLAY_MUSIC_MATCHER);
-        messageMatchers.add(ChatMatchers.DOWNLOAD_MUSIC_MATCHER);
-        messageMatchers.add(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
-        messageMatchers.add(ChatMatchers.STOP_PLAYING);
-        messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), messageMatchers), this::parseMessage);
+        messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
     }
 
     private void parseMessage(Message message) {
-        String messageText = message.getMessage();
-        if (messageText.matches(ChatMatchers.PLAY_MUSIC_MATCHER)) {
-            String filePath = messageText.replaceAll(ChatMatchers.PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
-            playSong(message, filePath);
-        } else if (messageText.matches(ChatMatchers.DOWNLOAD_MUSIC_MATCHER)) {
-            String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
-            downloadSong(message, filePath);
-        } else if (messageText.matches(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER)) {
-            String filePath = messageText.replaceAll(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
-            String outputFile = downloadSong(message, filePath);
-            if (outputFile != null) {
-                playSong(message, outputFile);
-            }
-        } else if (messageText.matches(ChatMatchers.STOP_PLAYING)) {
-            executeCmusCommand(new String[]{"-s"});
-        }
+        messageMatchers.keySet().stream()
+                .filter(message.getMessage()::matches)
+                .map(messageMatchers::get)
+                .forEach(messageConsumer -> messageConsumer.accept(message));
     }
 
     private String downloadSong(Message message, String youtubeURL) {

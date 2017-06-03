@@ -3,6 +3,7 @@ package com.netply.zero.discord.chat;
 import com.netply.zero.discord.DiscordDisconnectEventListener;
 import com.netply.zero.discord.DiscordMessageReceivedEventListener;
 import com.netply.zero.discord.persistence.TrackedUserManager;
+import com.sun.istack.Nullable;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
@@ -16,13 +17,22 @@ import java.util.logging.Logger;
 
 public class DiscordChatManagerImpl implements DiscordChatManager {
     private IDiscordClient discordClient;
+    private String userID;
 
 
     public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, TrackedUserManager trackedUserManager) throws DiscordException {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
-        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager, discordClient.getOurUser().getID()));
+        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager, this::getUserID));
         dispatcher.registerListener(new DiscordDisconnectEventListener(() -> System.exit(-1)));
+    }
+
+    @Nullable
+    private String getUserID() {
+        if (userID == null && discordClient.getOurUser() != null) {
+            userID = discordClient.getOurUser().getID();
+        }
+        return userID;
     }
 
     private IDiscordClient getClient(String token, boolean login) throws DiscordException {

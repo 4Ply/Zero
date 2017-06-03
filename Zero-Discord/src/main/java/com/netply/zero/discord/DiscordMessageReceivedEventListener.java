@@ -11,16 +11,17 @@ import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Date;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
     private String botChanURL;
     private TrackedUserManager trackedUserManager;
-    private String botChanUserID;
+    private Supplier<String> botChanUserID;
 
 
-    public DiscordMessageReceivedEventListener(String botChanURL, TrackedUserManager trackedUserManager, String botChanUserID) {
+    public DiscordMessageReceivedEventListener(String botChanURL, TrackedUserManager trackedUserManager, Supplier<String> botChanUserID) {
         this.botChanURL = botChanURL;
         this.trackedUserManager = trackedUserManager;
         this.botChanUserID = botChanUserID;
@@ -44,6 +45,6 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
 
     private boolean isDirectMessage(MessageReceivedEvent messageReceivedEvent) {
         return messageReceivedEvent.getMessage().getChannel().isPrivate() ||
-                messageReceivedEvent.getMessage().getMentions().stream().filter(IUser::isBot).anyMatch(iUser -> iUser.getID().equals(botChanUserID));
+                messageReceivedEvent.getMessage().getMentions().stream().filter(IUser::isBot).anyMatch(iUser -> iUser.getID().equals(botChanUserID.get()));
     }
 }

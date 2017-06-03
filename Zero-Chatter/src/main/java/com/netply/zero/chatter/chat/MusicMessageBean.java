@@ -35,7 +35,7 @@ public class MusicMessageBean {
     }
 
     private void kys(Message message) {
-        if (message.isDirect()) {
+        if (message.getIsDirect()) {
             MessageUtil.reply(botChanURL, message, ":(");
         }
     }

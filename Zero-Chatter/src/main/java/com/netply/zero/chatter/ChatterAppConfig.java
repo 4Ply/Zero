@@ -1,4 +1,4 @@
-package com.netply.zero.${package};
+package com.netply.zero.chatter;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableAsync
 @EnableScheduling
-public class ${classPrefix}AppConfig {
+public class ChatterAppConfig {
     @Value("${key.database.mysql.ip}")
     private String mysqlIp;
 

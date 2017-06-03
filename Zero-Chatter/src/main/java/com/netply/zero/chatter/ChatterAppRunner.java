@@ -1,4 +1,4 @@
-package com.netply.zero.${package};
+package com.netply.zero.chatter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,11 +8,11 @@ import java.util.logging.Logger;
 
 @SpringBootApplication(scanBasePackages = {
         "com.netply.web.security.login.controller",
-        "com.netply.zero.${package}"
+        "com.netply.zero.chatter"
 })
-public class ${classPrefix}AppRunner {
+public class ChatterAppRunner {
     public static void main(String[] args) {
         Logger.getGlobal().setLevel(Level.ALL);
-        SpringApplication.run(${classPrefix}AppRunner.class, args);
+        SpringApplication.run(ChatterAppRunner.class, args);
     }
 }

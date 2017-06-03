@@ -26,6 +26,7 @@
 
         <module>Zero-Eventador-League</module>
         <module>Zero-Scheduler</module>
+        <module>Zero-Chatter</module>
     </modules>
 
     <build>

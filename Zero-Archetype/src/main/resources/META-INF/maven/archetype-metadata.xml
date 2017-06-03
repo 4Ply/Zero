@@ -7,6 +7,12 @@
                 <include>**/*.java</include>
             </includes>
         </fileSet>
+        <fileSet filtered="false">
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <requiredProperties>

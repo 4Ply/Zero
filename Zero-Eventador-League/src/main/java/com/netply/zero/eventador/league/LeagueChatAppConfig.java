@@ -1,7 +1,7 @@
 package com.netply.zero.eventador.league;
 
-import com.netply.zero.eventador.league.chat.persistence.Database;
 import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
+import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabaseImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +32,6 @@ public class LeagueChatAppConfig {
 
     @Bean
     public LeagueChatDatabase leagueChatDatabase() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
-        return new Database(mysqlIp, mysqlPort, mysqlDb, mysqlUser, mysqlPassword);
+        return new LeagueChatDatabaseImpl(mysqlIp, mysqlPort, mysqlDb, mysqlUser, mysqlPassword);
     }
 }

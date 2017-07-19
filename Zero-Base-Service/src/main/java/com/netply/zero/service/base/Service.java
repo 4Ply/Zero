@@ -114,7 +114,11 @@ public class Service {
     }
 
     public <T> void post(String url, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
-        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity, serviceCallback);
+        post(url, credentials, requestEntity, responseClass, serviceCallback, new MultivaluedMapImpl());
+    }
+
+    public <T> void post(String url, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity, serviceCallback, params);
     }
 
     public void put(String url, ZeroCredentials credentials, Object requestEntity) {

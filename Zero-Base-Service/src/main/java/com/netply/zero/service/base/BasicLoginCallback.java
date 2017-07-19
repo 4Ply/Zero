@@ -23,6 +23,6 @@ public class BasicLoginCallback implements ServiceCallback<BasicResultResponse> 
     @Override
     public void onSuccess(BasicResultResponse parsedResponse) {
         SessionManager.setSessionKey(parsedResponse.getSessionKey());
-        SessionManager.setClientID(parsedResponse.getClientID());
+        SessionManager.setNodeID(parsedResponse.getClientID());
     }
 }

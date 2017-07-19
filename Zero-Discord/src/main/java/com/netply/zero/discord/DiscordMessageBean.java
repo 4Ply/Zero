@@ -1,7 +1,7 @@
 package com.netply.zero.discord;
 
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Reply;
+import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.discord.chat.DiscordChatManager;
 import com.netply.zero.discord.persistence.TrackedUserManager;
 import com.netply.zero.service.base.BasicLoginCallback;
@@ -22,16 +22,18 @@ import java.util.ArrayList;
 public class DiscordMessageBean {
     private final String botChanURL;
     private MessageListener messageListener;
+    private String platform;
     private DiscordChatManager discordChatManager;
     private TrackedUserManager trackedUserManager;
 
 
     @Autowired
-    public DiscordMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, DiscordChatManager discordChatManager, TrackedUserManager trackedUserManager) {
+    public DiscordMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform, DiscordChatManager discordChatManager, TrackedUserManager trackedUserManager) {
         this.botChanURL = botChanURL;
-        messageListener = new MessageListener(botChanURL);
+        this.platform = platform;
         this.discordChatManager = discordChatManager;
         this.trackedUserManager = trackedUserManager;
+        messageListener = new MessageListener(botChanURL, platform);
     }
 
     @Async
@@ -61,10 +63,10 @@ public class DiscordMessageBean {
     public void checkForDiscordReplies() {
         ArrayList<String> trackedUsers = new ArrayList<>();
         trackedUsers.addAll(trackedUserManager.getAllTrackedUsers());
-        messageListener.checkReplies("/replies", new MatcherList(SessionManager.getClientID(), trackedUsers), this::parseReply);
+        messageListener.checkReplies("/replies", new MatcherList(platform, trackedUsers), this::parseReply);
     }
 
-    private void parseReply(Reply reply) {
-        discordChatManager.sendMessage(reply.getTarget(), reply.getMessage());
+    private void parseReply(ToUserMessage toUserMessage) {
+        discordChatManager.sendMessage(toUserMessage.getTarget(), toUserMessage.getMessage());
     }
 }

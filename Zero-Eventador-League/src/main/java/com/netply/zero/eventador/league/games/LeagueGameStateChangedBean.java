@@ -1,6 +1,5 @@
 package com.netply.zero.eventador.league.games;
 
-import com.netply.botchan.web.model.Reply;
 import com.netply.botchan.web.model.User;
 import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import com.netply.zero.service.base.ListUtil;
@@ -8,6 +7,7 @@ import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.robrua.orianna.api.core.RiotAPI;
+import com.robrua.orianna.type.core.common.Region;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import com.robrua.orianna.type.core.game.Game;
 import com.sun.jersey.api.client.ClientResponse;
@@ -33,10 +33,13 @@ public class LeagueGameStateChangedBean {
     @Autowired
     public LeagueGameStateChangedBean(@Value("${key.server.bot-chan.url}") String botChanURL,
                                       @Value("${key.platform}") String platform,
+                                      @Value("${key.external.riot.api.key}") String riotAPIKey,
                                       LeagueChatDatabase leagueChatDatabase) {
         this.botChanURL = botChanURL;
         this.platform = platform;
         this.leagueChatDatabase = leagueChatDatabase;
+        RiotAPI.setRegion(Region.EUW);
+        RiotAPI.setAPIKey(riotAPIKey);
     }
 
     @Scheduled(fixedDelay = 30000)
@@ -99,7 +102,7 @@ public class LeagueGameStateChangedBean {
                     String replyMessage = String.format("%s just finished a game! (and %s) - they placed %s wards, and killed %s wards",
                             trackedPlayer, didWin ? "WON" : "lost", game.getStats().getWardsPlaced(), game.getStats().getWardsKilled());
                     for (User user : users) {
-                        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getClientID(), replyMessage));
+//                        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getClientID(), replyMessage));
                     }
                 }
 

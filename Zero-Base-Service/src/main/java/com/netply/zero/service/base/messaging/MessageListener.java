@@ -2,12 +2,11 @@ package com.netply.zero.service.base.messaging;
 
 import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Message;
-import com.netply.botchan.web.model.Reply;
+import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
-import com.netply.zero.service.base.credentials.SessionManager;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.util.ArrayList;
@@ -18,10 +17,12 @@ import java.util.logging.Logger;
 
 public class MessageListener {
     private String botChanURL;
+    private String platform;
 
 
-    public MessageListener(String botChanURL) {
+    public MessageListener(String botChanURL, String platform) {
         this.botChanURL = botChanURL;
+        this.platform = platform;
     }
 
     public void checkMessages(String url, MatcherList matcherList, final Consumer<Message> messageConsumer) {
@@ -36,12 +37,12 @@ public class MessageListener {
         });
     }
 
-    public void checkReplies(String url, MatcherList matcherList, final Consumer<Reply> replyConsumer) {
+    public void checkReplies(String url, MatcherList matcherList, final Consumer<ToUserMessage> replyConsumer) {
         checkSubscribedObjects(url, matcherList, output -> {
-            List<Reply> messages = ListUtil.stringToArray(output, Reply[].class);
-            for (Reply reply : messages) {
-                System.out.println(reply.toString());
-                deleteReply(reply, replyConsumer);
+            List<ToUserMessage> messages = ListUtil.stringToArray(output, ToUserMessage[].class);
+            for (ToUserMessage toUserMessage : messages) {
+                System.out.println(toUserMessage.toString());
+                deleteReply(toUserMessage, replyConsumer);
             }
 
             System.out.println("Replies Parsed: " + output);
@@ -73,7 +74,7 @@ public class MessageListener {
     }
 
     private void deleteMessage(Message message, Consumer<Message> messageConsumer) {
-        String deleteMessageURL = String.format("/message?clientID=%s&id=%s", String.valueOf(SessionManager.getClientID()), message.getId());
+        String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, message.getId());
         Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
@@ -92,8 +93,8 @@ public class MessageListener {
         });
     }
 
-    private void deleteReply(Reply reply, Consumer<Reply> replyConsumer) {
-        String deleteMessageURL = String.format("/reply?clientID=%s&id=%s", String.valueOf(SessionManager.getClientID()), reply.getId());
+    private void deleteReply(ToUserMessage toUserMessage, Consumer<ToUserMessage> replyConsumer) {
+        String deleteMessageURL = String.format("/reply?platform=%s&id=%s", platform, toUserMessage.getId());
         Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
@@ -102,7 +103,7 @@ public class MessageListener {
 
             @Override
             public void onSuccess(String output) {
-                replyConsumer.accept(reply);
+                replyConsumer.accept(toUserMessage);
             }
 
             @Override

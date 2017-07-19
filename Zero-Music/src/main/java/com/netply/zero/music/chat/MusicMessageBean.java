@@ -3,11 +3,13 @@ package com.netply.zero.music.chat;
 import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Message;
 import com.netply.botchan.web.model.Reply;
+import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.Service;
+import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
-import com.netply.zero.service.base.credentials.SessionManager;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
+import com.sun.jersey.api.client.ClientResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -26,15 +26,17 @@ import java.util.function.Consumer;
 public class MusicMessageBean {
     private static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
+    private String platform;
     private MessageListener messageListener;
     private Process songProcess;
     private Map<String, Consumer<Message>> messageMatchers;
 
 
     @Autowired
-    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
         this.botChanURL = botChanURL;
-        messageListener = new MessageListener(this.botChanURL);
+        this.platform = platform;
+        messageListener = new MessageListener(botChanURL, platform);
         initMessageMatchers();
     }
 
@@ -71,8 +73,32 @@ public class MusicMessageBean {
     }
 
     private void stopPlayback(Message message) {
-        executeCmusCommand(new String[]{"-s"});
-        MessageUtil.reply(botChanURL, message, "Playback stopped.");
+        String permission;
+        try {
+            permission = URLEncoder.encode("bot.chan.music.stop", "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return;
+        }
+        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new BasicSessionCredentials(), new User(message.getSender(), platform), Boolean.class, new ServiceCallback<Boolean>() {
+            @Override
+            public void onError(ClientResponse response) {
+
+            }
+
+            @Override
+            public void onSuccess(String output) {
+
+            }
+
+            @Override
+            public void onSuccess(Boolean parsedResponse) {
+                if (parsedResponse != null && parsedResponse) {
+                    executeCmusCommand(new String[]{"-s"});
+                    MessageUtil.reply(botChanURL, message, "Playback stopped.");
+                }
+            }
+        });
     }
 
     private void skipSong(Message message) {
@@ -86,7 +112,7 @@ public class MusicMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMusicMessages() {
-        messageListener.checkMessages("/messages", new MatcherList(SessionManager.getClientID(), new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
+        messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
     }
 
     private void parseMessage(Message message) {
@@ -98,7 +124,7 @@ public class MusicMessageBean {
 
     private String downloadSong(Message message, String youtubeURL) {
         try {
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), "Downloading " + youtubeURL));
+            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), "Downloading " + youtubeURL));
 
             Process process = Runtime.getRuntime().exec(new String[]{"youtube-dl", "--extract-audio", "--audio-format", "mp3",
                     "-o", MUSIC_DIR + "%(title)s-%(id)s.%(ext)s", youtubeURL});
@@ -133,7 +159,7 @@ public class MusicMessageBean {
             } else {
                 reply = "Song downloaded! Saved as " + outputFile;
             }
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), reply));
+            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), reply));
             return outputFile;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -167,7 +193,7 @@ public class MusicMessageBean {
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
-        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getSender(), reply));
+        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), reply));
 
         Thread stopSongProcess = new Thread() {
             public void run() {

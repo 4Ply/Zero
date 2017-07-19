@@ -2,7 +2,7 @@ package com.netply.zero.service.base.credentials;
 
 public class SessionManager {
     private static String sessionKey;
-    private static Integer clientID;
+    private static Integer nodeID;
 
 
     public static String getSessionKey() {
@@ -13,11 +13,11 @@ public class SessionManager {
         SessionManager.sessionKey = sessionKey;
     }
 
-    public static void setClientID(Integer clientID) {
-        SessionManager.clientID = clientID;
+    public static void setNodeID(Integer nodeID) {
+        SessionManager.nodeID = nodeID;
     }
 
-    public static Integer getClientID() {
-        return clientID;
+    public static Integer getNodeID() {
+        return nodeID;
     }
 }

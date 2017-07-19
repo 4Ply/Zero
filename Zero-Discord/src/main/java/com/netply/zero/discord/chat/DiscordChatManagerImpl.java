@@ -20,10 +20,10 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
     private String userID;
 
 
-    public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, TrackedUserManager trackedUserManager) throws DiscordException {
+    public DiscordChatManagerImpl(String discordAPIKey, String botChanURL, String platform, TrackedUserManager trackedUserManager) throws DiscordException {
         this.discordClient = getClient(discordAPIKey, true);
         EventDispatcher dispatcher = discordClient.getDispatcher();
-        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, trackedUserManager, this::getUserID));
+        dispatcher.registerListener(new DiscordMessageReceivedEventListener(botChanURL, platform, trackedUserManager, this::getUserID));
         dispatcher.registerListener(new DiscordDisconnectEventListener(() -> System.exit(-1)));
     }
 

@@ -1,4 +1,4 @@
-package com.netply.zero.eventador.league;
+package com.netply.zero.service.base;
 
 public class Pair<X, Y> {
     private X left;

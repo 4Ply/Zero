@@ -1,6 +1,6 @@
 package com.netply.zero.eventador.league.games;
 
-import com.netply.zero.eventador.league.Pair;
+import com.netply.zero.service.base.Pair;
 import com.robrua.orianna.api.core.RiotAPI;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import com.robrua.orianna.type.core.summoner.Summoner;

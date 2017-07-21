@@ -42,7 +42,7 @@ public class LeagueGameStateChangedBean {
         RiotAPI.setAPIKey(riotAPIKey);
     }
 
-    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 60000)
     @Async
     public void checkGameStates() {
         Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", new BasicSessionCredentials(), null, new ServiceCallback<Object>() {

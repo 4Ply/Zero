@@ -1,10 +1,10 @@
 package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.*;
-import com.netply.zero.eventador.league.Pair;
 import com.netply.zero.eventador.league.games.CurrentGameManager;
 import com.netply.zero.eventador.league.games.League;
 import com.netply.zero.service.base.ListUtil;
+import com.netply.zero.service.base.Pair;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
@@ -128,13 +128,13 @@ public class LeagueMessageBean {
                 List<String> trackedPlayers = ListUtil.stringToArray(output, String[].class);
 
                 if (trackedPlayers.isEmpty()) {
-                    MessageUtil.reply(botChanURL, message, " You are not tracking any players");
+                    MessageUtil.reply(botChanURL, message, "You are not tracking any players");
                 } else {
                     String trackedPlayersString = "";
                     for (String trackedPlayer : trackedPlayers) {
                         trackedPlayersString += trackedPlayer + "\n";
                     }
-                    MessageUtil.reply(botChanURL, message, " You are tracking the following players: \n" + trackedPlayersString.trim());
+                    MessageUtil.reply(botChanURL, message, "You are tracking the following players: \n" + trackedPlayersString.trim());
                 }
             }
 

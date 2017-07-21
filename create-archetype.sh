@@ -6,6 +6,6 @@ mvn archetype:generate                      \
 	-DarchetypeVersion=1.0-SNAPSHOT         \
 	-DgroupId=com.netply                    \
 	-Dversion=1.0-SNAPSHOT                  \
-	-DartifactId=Zero-Chatter               \
-	-Dpackage=chatter                       \
-	-DclassPrefix=Chatter
+	-DartifactId=Zero-Status               \
+	-Dpackage=status                       \
+	-DclassPrefix=Status

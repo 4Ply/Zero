@@ -41,6 +41,7 @@ public class Service {
         } catch (Exception e) {
             Logger.getGlobal().severe(e.getMessage());
             e.printStackTrace();
+            processError(element, url, null);
         }
     }
 
@@ -73,7 +74,8 @@ public class Service {
 
     private static void processError(ServiceInvocation element, String url, ClientResponse response) {
         System.out.println("Request Data: " + element.getRequestEntity());
-        Logger.getGlobal().log(Level.SEVERE, "Service call failed : HTTP error code : " + response.getStatus() + " | " + url + " \n" + element.getRequestEntity());
+        Object status = response != null ? response.getStatus() : "<ERROR>";
+        Logger.getGlobal().log(Level.SEVERE, String.format("Service call failed : HTTP error code : %s | %s \n%s", status, url, element.getRequestEntity()));
         try {
             element.getServiceCallback().onError(response);
         } catch (Exception e) {

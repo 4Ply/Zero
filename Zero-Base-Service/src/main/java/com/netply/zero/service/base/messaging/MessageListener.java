@@ -8,14 +8,14 @@ import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.sun.jersey.api.client.ClientResponse;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MessageListener {
+    private Logger logger = Logger.getLogger(this.getClass());
     private String botChanURL;
     private String platform;
 
@@ -29,11 +29,11 @@ public class MessageListener {
         checkSubscribedObjects(url, matcherList, output -> {
             List<Message> messages = ListUtil.stringToArray(output, Message[].class);
             for (Message message : messages) {
-                System.out.println(message.toString());
+                logger.info(message.toString());
                 deleteMessage(message, messageConsumer);
             }
 
-            System.out.println("Messages Parsed: " + output);
+            logger.info("Messages Parsed: " + output);
         });
     }
 
@@ -41,11 +41,11 @@ public class MessageListener {
         checkSubscribedObjects(url, matcherList, output -> {
             List<ToUserMessage> messages = ListUtil.stringToArray(output, ToUserMessage[].class);
             for (ToUserMessage toUserMessage : messages) {
-                System.out.println(toUserMessage.toString());
+                logger.info(toUserMessage.toString());
                 deleteReply(toUserMessage, replyConsumer);
             }
 
-            System.out.println("Replies Parsed: " + output);
+            logger.info("Replies Parsed: " + output);
         });
     }
 
@@ -54,8 +54,8 @@ public class MessageListener {
             Service.create(botChanURL).post(url, new BasicSessionCredentials(), matcherList, null, new ServiceCallback<ArrayList>() {
                 @Override
                 public void onError(ClientResponse response) {
-                    Logger.getGlobal().log(Level.SEVERE, "Failed to get messages: " + response.getStatus());
-                    Logger.getGlobal().log(Level.SEVERE, response.toString());
+                    logger.fatal("Failed to get messages: " + response.getStatus());
+                    logger.fatal(response.toString());
                 }
 
                 @Override

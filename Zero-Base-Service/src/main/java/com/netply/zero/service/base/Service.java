@@ -11,12 +11,12 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import org.apache.log4j.Logger;
 
 import java.security.InvalidParameterException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Service {
+    private static Logger logger = Logger.getLogger(Service.class);
     private static Client client;
     private String baseURL;
 
@@ -27,8 +27,8 @@ public class Service {
 
     private static void consumeItem(ServiceInvocation element) {
         String url = element.getWebResource().getURI().toString();
-        System.out.println(element.getMethod().name() + " | " + url);
-        System.out.println("Request Data: " + element.getRequestEntity());
+        logger.info(element.getMethod().name() + " | " + url);
+        logger.info("Request Data: " + element.getRequestEntity());
 
         try {
             ClientResponse response = element.getMethod().execute(element.getWebResource(), element.getRequestEntity());
@@ -39,7 +39,7 @@ public class Service {
                 processError(element, url, response);
             }
         } catch (Exception e) {
-            Logger.getGlobal().severe(e.getMessage());
+            logger.fatal(e.getMessage());
             e.printStackTrace();
             processError(element, url, null);
         }
@@ -47,7 +47,7 @@ public class Service {
 
     private static void processSuccess(ServiceInvocation element, ClientResponse response) {
         String output = response.getEntity(String.class);
-        System.out.println("Basic Response: " + output);
+        logger.info("Basic Response: " + output);
 
         try {
             element.getServiceCallback().onSuccess(output);
@@ -62,7 +62,7 @@ public class Service {
         if (element.getResponseClass() != null) {
             Object parsedResponse = new Gson().fromJson(output, element.getResponseClass());
             if (parsedResponse != null) {
-                Logger.getGlobal().log(Level.FINER, parsedResponse.toString());
+                logger.info(parsedResponse.toString());
                 try {
                     element.getServiceCallback().onSuccess(parsedResponse);
                 } catch (Exception e) {
@@ -73,9 +73,9 @@ public class Service {
     }
 
     private static void processError(ServiceInvocation element, String url, ClientResponse response) {
-        System.out.println("Request Data: " + element.getRequestEntity());
+        logger.info("Request Data: " + element.getRequestEntity());
         Object status = response != null ? response.getStatus() : "<ERROR>";
-        Logger.getGlobal().log(Level.SEVERE, String.format("Service call failed : HTTP error code : %s | %s \n%s", status, url, element.getRequestEntity()));
+        logger.fatal(String.format("Service call failed : HTTP error code : %s | %s \n%s", status, url, element.getRequestEntity()));
         try {
             element.getServiceCallback().onError(response);
         } catch (Exception e) {

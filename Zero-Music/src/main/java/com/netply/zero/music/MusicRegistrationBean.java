@@ -10,16 +10,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.HttpsURLConnection;
 
 @Component
 public class MusicRegistrationBean {
     private final String botChanURL;
 
-
-    static {
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals("127.0.0.1"));
-    }
 
     @Autowired
     public MusicRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {

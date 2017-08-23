@@ -1,4 +1,4 @@
-package com.netply.zero.${package};
+package com.netply.zero.eventmock;
 
 import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
@@ -8,14 +8,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.HttpsURLConnection;
 
 @Component
-public class ${classPrefix}LoginAndMessageMatcherRegistrationBean {
+public class EventMockLoginBean {
     private String botChanURL;
 
+
     @Autowired
-    public ${classPrefix}LoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+    public EventMockLoginBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
     }
 

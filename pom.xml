@@ -28,6 +28,7 @@
         <module>Zero-Scheduler</module>
         <module>Zero-Chatter</module>
         <module>Zero-Status</module>
+        <module>Zero-Eventador-Mock</module>
     </modules>
 
     <build>

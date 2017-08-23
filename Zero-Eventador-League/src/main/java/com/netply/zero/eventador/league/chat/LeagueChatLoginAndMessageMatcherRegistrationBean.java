@@ -10,15 +10,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.HttpsURLConnection;
 
 @Component
 public class LeagueChatLoginAndMessageMatcherRegistrationBean {
     private String botChanURL;
 
-    static {
-        HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals("127.0.0.1"));
-    }
 
     @Autowired
     public LeagueChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {

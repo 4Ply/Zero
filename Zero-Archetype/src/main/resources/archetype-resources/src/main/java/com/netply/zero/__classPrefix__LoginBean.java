@@ -1,4 +1,4 @@
-package com.netply.zero.discord;
+package com.netply.zero.${package};
 
 import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
@@ -8,14 +8,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.HttpsURLConnection;
 
 @Component
-public class DiscordChatLoginAndMessageMatcherRegistrationBean {
+public class ${classPrefix}LoginBean {
     private String botChanURL;
 
 
     @Autowired
-    public DiscordChatLoginAndMessageMatcherRegistrationBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+    public ${classPrefix}LoginBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
     }
 

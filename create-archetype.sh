@@ -6,6 +6,6 @@ mvn archetype:generate                      \
 	-DarchetypeVersion=1.0-SNAPSHOT         \
 	-DgroupId=com.netply                    \
 	-Dversion=1.0-SNAPSHOT                  \
-	-DartifactId=Zero-Status               \
-	-Dpackage=status                       \
-	-DclassPrefix=Status
+	-DartifactId=Zero-Eventador-Mock               \
+	-Dpackage=eventmock                       \
+	-DclassPrefix=EventMock

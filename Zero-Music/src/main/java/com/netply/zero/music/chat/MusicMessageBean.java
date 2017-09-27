@@ -79,7 +79,7 @@ public class MusicMessageBean {
             e.printStackTrace();
             return;
         }
-        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new User(message.getSender(), platform), Boolean.class, new ServiceCallback<Boolean>() {
+        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new User(message.getSender(), message.getPlatform()), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
 

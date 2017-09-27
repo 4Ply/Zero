@@ -4,10 +4,8 @@ import com.netply.botchan.web.model.Message;
 import com.netply.zero.discord.persistence.TrackedUserManager;
 import com.netply.zero.discord.status.StatusUtil;
 import com.netply.zero.service.base.Service;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
-import com.netply.zero.service.base.credentials.SessionManager;
-import sx.blah.discord.api.IListener;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.api.events.IListener;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Date;
@@ -30,23 +28,22 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
     }
 
     public void handle(MessageReceivedEvent messageReceivedEvent) {
-        String sender = messageReceivedEvent.getMessage().getAuthor().getID();
+        String sender = messageReceivedEvent.getMessage().getAuthor().getStringID();
         String content = messageReceivedEvent.getMessage().getContent();
         Logger.getGlobal().log(Level.INFO, String.format("[Message] %s: %s\n", sender, content));
         if (!messageReceivedEvent.getMessage().getChannel().isPrivate()) {
-            sender = messageReceivedEvent.getMessage().getChannel().getID();
+            sender = messageReceivedEvent.getMessage().getChannel().getStringID();
         }
 
         boolean isDirectMessage = isDirectMessage(messageReceivedEvent);
         trackedUserManager.addUser(sender);
-        String url = String.format("/message?clientID=%s", String.valueOf(SessionManager.getNodeID()));
-        Service.create(botChanURL).put(url, new BasicSessionCredentials(), new Message(content, sender, platform, isDirectMessage));
+        Service.create(botChanURL).put("/message", new Message(content, sender, platform, isDirectMessage));
         StatusUtil.setLastMessageReceivedDate(new Date());
         StatusUtil.incrementReceivedMessagesCounter();
     }
 
     private boolean isDirectMessage(MessageReceivedEvent messageReceivedEvent) {
         return messageReceivedEvent.getMessage().getChannel().isPrivate() ||
-                messageReceivedEvent.getMessage().getMentions().stream().filter(IUser::isBot).anyMatch(iUser -> iUser.getID().equals(botChanUserID.get()));
+                messageReceivedEvent.getMessage().getMentions().stream().filter(IUser::isBot).anyMatch(iUser -> iUser.getStringID().equals(botChanUserID.get()));
     }
 }

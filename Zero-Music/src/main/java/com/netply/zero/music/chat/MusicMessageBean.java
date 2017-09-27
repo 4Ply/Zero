@@ -6,7 +6,6 @@ import com.netply.botchan.web.model.Reply;
 import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.sun.jersey.api.client.ClientResponse;
@@ -80,7 +79,7 @@ public class MusicMessageBean {
             e.printStackTrace();
             return;
         }
-        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new BasicSessionCredentials(), new User(message.getSender(), platform), Boolean.class, new ServiceCallback<Boolean>() {
+        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new User(message.getSender(), platform), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -124,7 +123,7 @@ public class MusicMessageBean {
 
     private String downloadSong(Message message, String youtubeURL) {
         try {
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), "Downloading " + youtubeURL));
+            Service.create(botChanURL).put("/reply", new Reply(message.getId(), "Downloading " + youtubeURL));
 
             Process process = Runtime.getRuntime().exec(new String[]{"youtube-dl", "--extract-audio", "--audio-format", "mp3",
                     "-o", MUSIC_DIR + "%(title)s-%(id)s.%(ext)s", youtubeURL});
@@ -159,7 +158,7 @@ public class MusicMessageBean {
             } else {
                 reply = "Song downloaded! Saved as " + outputFile;
             }
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), reply));
+            Service.create(botChanURL).put("/reply", new Reply(message.getId(), reply));
             return outputFile;
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -193,7 +192,7 @@ public class MusicMessageBean {
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
-        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), reply));
+        Service.create(botChanURL).put("/reply", new Reply(message.getId(), reply));
 
         Thread stopSongProcess = new Thread() {
             public void run() {

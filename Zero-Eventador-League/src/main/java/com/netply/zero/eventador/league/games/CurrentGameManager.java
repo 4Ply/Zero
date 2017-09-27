@@ -5,7 +5,6 @@ import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import com.robrua.orianna.type.core.currentgame.Participant;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class CurrentGameManager {
     public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final Message message, String platform) {
-        Service.create(botChanURL).post("/trackedPlayers", new BasicSessionCredentials(), new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
+        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 System.out.println(response.toString());

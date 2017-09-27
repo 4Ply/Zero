@@ -6,7 +6,6 @@ import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.sun.jersey.api.client.ClientResponse;
 import org.apache.log4j.Logger;
 
@@ -51,7 +50,7 @@ public class MessageListener {
 
     public void checkSubscribedObjects(String url, MatcherList matcherList, Consumer<String> successConsumer) {
         try {
-            Service.create(botChanURL).post(url, new BasicSessionCredentials(), matcherList, null, new ServiceCallback<ArrayList>() {
+            Service.create(botChanURL).post(url, matcherList, null, new ServiceCallback<ArrayList>() {
                 @Override
                 public void onError(ClientResponse response) {
                     logger.fatal("Failed to get messages: " + response.getStatus());
@@ -75,7 +74,7 @@ public class MessageListener {
 
     private void deleteMessage(Message message, Consumer<Message> messageConsumer) {
         String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, message.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -95,7 +94,7 @@ public class MessageListener {
 
     private void deleteReply(ToUserMessage toUserMessage, Consumer<ToUserMessage> replyConsumer) {
         String deleteMessageURL = String.format("/reply?platform=%s&id=%s", platform, toUserMessage.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

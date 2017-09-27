@@ -1,6 +1,5 @@
 package com.netply.zero.status;
 
-import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +20,6 @@ public class StatusLoginAndMessageMatcherRegistrationBean {
     @Async
     @PostConstruct
     public void loginToBotChan() {
-        Service.create(botChanURL).login("test_user3", "$2y$10$PAlJzaGG0pdCJWz6f/W8FOHubkFEld3uwYJeYlHHxx.u7Rxl/4zFS", new BasicLoginCallback());
+        Service.create(botChanURL).setAuthenticateToken("test_user3");
     }
 }

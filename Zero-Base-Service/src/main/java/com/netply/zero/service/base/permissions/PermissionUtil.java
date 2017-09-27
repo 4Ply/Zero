@@ -5,7 +5,6 @@ import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.sun.jersey.api.client.ClientResponse;
 
 import java.io.UnsupportedEncodingException;
@@ -23,7 +22,7 @@ public class PermissionUtil {
             e.printStackTrace();
             return;
         }
-        Service.create(baseURL).post(String.format("/hasPermission?permission=%s", permissionURL), new BasicSessionCredentials(), new User(message.getSender(), message.getPlatform()), Boolean.class, new ServiceCallback<Boolean>() {
+        Service.create(baseURL).post(String.format("/hasPermission?permission=%s", permissionURL), new User(message.getSender(), message.getPlatform()), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
                 permissionsCallback.permissionDenied(permission);
@@ -53,7 +52,7 @@ public class PermissionUtil {
             e.printStackTrace();
             return;
         }
-        Service.create(baseURL).get(String.format("/usersForPermission?permission=%s", permissionURL), new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+        Service.create(baseURL).get(String.format("/usersForPermission?permission=%s", permissionURL), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

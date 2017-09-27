@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SpringBootApplication(scanBasePackages = {
-        "com.netply.web.security.login.controller",
         "com.netply.zero.chatter"
 })
 public class ChatterAppRunner {

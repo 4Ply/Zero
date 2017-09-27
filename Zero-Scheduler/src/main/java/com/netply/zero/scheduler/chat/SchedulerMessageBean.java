@@ -7,7 +7,6 @@ import com.netply.zero.scheduler.job.SimpleJob;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.sun.jersey.api.client.ClientResponse;
@@ -107,7 +106,7 @@ public class SchedulerMessageBean {
 
     private void deleteEvent(Event event, Consumer<Event> eventConsumer) {
         String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, event.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, new BasicSessionCredentials(), new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

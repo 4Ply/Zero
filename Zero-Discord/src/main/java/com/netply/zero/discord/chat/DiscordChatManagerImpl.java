@@ -5,12 +5,11 @@ import com.netply.zero.discord.DiscordMessageReceivedEventListener;
 import com.netply.zero.discord.persistence.TrackedUserManager;
 import com.sun.istack.Nullable;
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.EventDispatcher;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.events.EventDispatcher;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
 
 import java.util.logging.Logger;
@@ -30,7 +29,7 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
     @Nullable
     private String getUserID() {
         if (userID == null && discordClient.getOurUser() != null) {
-            userID = discordClient.getOurUser().getID();
+            userID = discordClient.getOurUser().getStringID();
         }
         return userID;
     }
@@ -41,7 +40,7 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
         if (login) {
             return clientBuilder.login(); // Creates the client instance and logs the client in
         } else {
-            return clientBuilder.build(); // Creates the client instance but it doesn't log the client in yet, you would have to call client.login() yourself
+            return clientBuilder.build(); // Creates the client instance but it doesn't log the client in yet, you would have to call client.setAuthenticateToken() yourself
         }
     }
 
@@ -49,16 +48,16 @@ public class DiscordChatManagerImpl implements DiscordChatManager {
     public void sendMessage(String uuid, String message) {
         IChannel pmChannel;
         try {
-            IUser userByID = discordClient.getUserByID(uuid);
+            IUser userByID = discordClient.getUserByID(Long.parseUnsignedLong(uuid));
             if (userByID != null) {
                 pmChannel = discordClient.getOrCreatePMChannel(userByID);
             } else {
-                pmChannel = discordClient.getChannelByID(uuid);
+                pmChannel = discordClient.getChannelByID(Long.parseUnsignedLong(uuid));
             }
             if (pmChannel != null) {
                 pmChannel.sendMessage(message);
             }
-        } catch (DiscordException | HTTP429Exception | MissingPermissionsException e) {
+        } catch (DiscordException | MissingPermissionsException e) {
             Logger.getGlobal().severe(e.getMessage());
             e.printStackTrace();
         }

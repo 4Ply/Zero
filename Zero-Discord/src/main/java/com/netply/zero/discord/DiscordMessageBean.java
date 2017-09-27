@@ -4,10 +4,7 @@ import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.discord.chat.DiscordChatManager;
 import com.netply.zero.discord.persistence.TrackedUserManager;
-import com.netply.zero.service.base.BasicLoginCallback;
 import com.netply.zero.service.base.Service;
-import com.netply.zero.service.base.credentials.SessionManager;
-import com.netply.zero.service.base.credentials.ZeroCredentials;
 import com.netply.zero.service.base.messaging.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +19,19 @@ import java.util.ArrayList;
 public class DiscordMessageBean {
     private final String botChanURL;
     private MessageListener messageListener;
+    private String authenticatenToken;
     private String platform;
     private DiscordChatManager discordChatManager;
     private TrackedUserManager trackedUserManager;
 
 
     @Autowired
-    public DiscordMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform, DiscordChatManager discordChatManager, TrackedUserManager trackedUserManager) {
+    public DiscordMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL,
+                              @Value("${key.node.auth.token}") String authenticatenToken,
+                              @Value("${key.platform}") String platform,
+                              DiscordChatManager discordChatManager, TrackedUserManager trackedUserManager) {
         this.botChanURL = botChanURL;
+        this.authenticatenToken = authenticatenToken;
         this.platform = platform;
         this.discordChatManager = discordChatManager;
         this.trackedUserManager = trackedUserManager;
@@ -39,24 +41,7 @@ public class DiscordMessageBean {
     @Async
     @PostConstruct
     public void registerToBotChan() {
-        ZeroCredentials credentials = new ZeroCredentials() {
-            @Override
-            public String getUsername() {
-                return "test_user3";
-            }
-
-            @Override
-            public String getSessionKey() {
-                return SessionManager.getSessionKey();
-            }
-
-            @Override
-            public String getPasswordHash() {
-                return "$2y$10$PAlJzaGG0pdCJWz6f/W8FOHubkFEld3uwYJeYlHHxx.u7Rxl/4zFS";
-            }
-        };
-
-        Service.create(botChanURL).login(credentials.getUsername(), credentials.getPasswordHash(), new BasicLoginCallback());
+        Service.create(botChanURL).setAuthenticateToken(authenticatenToken);
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)

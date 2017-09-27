@@ -1,23 +1,18 @@
 package com.netply.zero.service.base;
 
 import com.google.gson.Gson;
-import com.netply.botchan.web.model.BasicResultResponse;
-import com.netply.zero.service.base.credentials.ZeroCredentials;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.*;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.apache.log4j.Logger;
 
-import java.security.InvalidParameterException;
-
 public class Service {
     private static Logger logger = Logger.getLogger(Service.class);
     private static Client client;
+    private static String authenticationToken;
     private String baseURL;
 
 
@@ -87,71 +82,66 @@ public class Service {
         return new Service(baseURL);
     }
 
-    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass) {
-        getConcurrent(url, credentials, responseClass, new EmptyServiceCallback<>());
+    public <T> void get(String url, Class<T> responseClass) {
+        getConcurrent(url, responseClass, new EmptyServiceCallback<>());
     }
 
-    public <T> void getConcurrent(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
-        get(url, credentials, responseClass, serviceCallback);
+    public <T> void getConcurrent(String url, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        get(url, responseClass, serviceCallback);
     }
 
-    public void delete(String url, ZeroCredentials credentials, ServiceCallback<Object> serviceCallback) {
-        delete(url, credentials, null, serviceCallback);
+    public void delete(String url, ServiceCallback<Object> serviceCallback) {
+        delete(url, null, serviceCallback);
     }
 
-    public void delete(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
-        exec(url, HttpMethod.DELETE, credentials, null, requestEntity, serviceCallback);
+    public void delete(String url, Object requestEntity, ServiceCallback<Object> serviceCallback) {
+        exec(url, HttpMethod.DELETE, null, requestEntity, serviceCallback);
     }
 
-    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
-        exec(url, HttpMethod.GET, credentials, responseClass, null, serviceCallback);
+    public <T> void get(String url, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        exec(url, HttpMethod.GET, responseClass, null, serviceCallback);
     }
 
-    public <T> void get(String url, ZeroCredentials credentials, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
-        exec(url, HttpMethod.GET, credentials, responseClass, null, serviceCallback, params);
+    public <T> void get(String url, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+        exec(url, HttpMethod.GET, responseClass, null, serviceCallback, params);
     }
 
-    public <T> void post(String url, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity) {
-        post(url, credentials, requestEntity, responseClass, new EmptyServiceCallback<>());
+    public <T> void post(String url, Class<T> responseClass, Object requestEntity) {
+        post(url, requestEntity, responseClass, new EmptyServiceCallback<>());
     }
 
-    public <T> void post(String url, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
-        post(url, credentials, requestEntity, responseClass, serviceCallback, new MultivaluedMapImpl());
+    public <T> void post(String url, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback) {
+        post(url, requestEntity, responseClass, serviceCallback, new MultivaluedMapImpl());
     }
 
-    public <T> void post(String url, ZeroCredentials credentials, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
-        exec(url, HttpMethod.POST, credentials, responseClass, requestEntity, serviceCallback, params);
+    public <T> void post(String url, Object requestEntity, Class<T> responseClass, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+        exec(url, HttpMethod.POST, responseClass, requestEntity, serviceCallback, params);
     }
 
-    public void put(String url, ZeroCredentials credentials, Object requestEntity) {
-        put(url, credentials, requestEntity, new EmptyServiceCallback<>());
+    public void put(String url, Object requestEntity) {
+        put(url, requestEntity, new EmptyServiceCallback<>());
     }
 
-    public void put(String url, ZeroCredentials credentials, Object requestEntity, ServiceCallback<Object> serviceCallback) {
-        exec(url, HttpMethod.PUT, credentials, null, requestEntity, serviceCallback);
+    public void put(String url, Object requestEntity, ServiceCallback<Object> serviceCallback) {
+        exec(url, HttpMethod.PUT, null, requestEntity, serviceCallback);
     }
 
-    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
-        exec(url, method, credentials, responseClass, requestEntity, serviceCallback, new MultivaluedMapImpl());
+    public <T> void exec(String url, HttpMethod method, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback) {
+        exec(url, method, responseClass, requestEntity, serviceCallback, new MultivaluedMapImpl());
     }
 
-    public <T> void exec(String url, HttpMethod method, ZeroCredentials credentials, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
-        if (credentials == null) {
-            throw new InvalidParameterException("credentials cannot be null");
-        } else {
-            Client client = getClient();
+    public <T> void exec(String url, HttpMethod method, Class<T> responseClass, Object requestEntity, ServiceCallback<T> serviceCallback, MultivaluedMapImpl params) {
+        Client client = getClient();
 
-            WebResource webResource = client.resource(baseURL + url)
-                    .queryParam("sessionKey", credentials.getSessionKey());
+        WebResource webResource = client.resource(baseURL + url);
 
-            webResource.queryParams(params);
+        webResource.queryParams(params);
 
-            ServiceInvocation<T> serviceInvocation = new ServiceInvocation<>(webResource, requestEntity, method, responseClass, serviceCallback);
-            consumeItem(serviceInvocation);
-        }
+        ServiceInvocation<T> serviceInvocation = new ServiceInvocation<>(webResource, requestEntity, method, responseClass, serviceCallback);
+        consumeItem(serviceInvocation);
     }
 
-    private static Client getClient() {
+    private Client getClient() {
         if (client == null) {
             DefaultClientConfig clientConfig = new DefaultClientConfig();
             clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
@@ -159,19 +149,21 @@ public class Service {
             clientConfig.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
 
             client = Client.create(clientConfig);
+            client.addFilter(new ClientFilter() {
+                @Override
+                public ClientResponse handle(ClientRequest clientRequest) throws ClientHandlerException {
+                    if (!clientRequest.getHeaders().containsKey("apikey")) {
+                        clientRequest.getHeaders().add("apikey", authenticationToken);
+                    }
+
+                    return this.getNext().handle(clientRequest);
+                }
+            });
         }
         return client;
     }
 
-    public void login(String username, String passwordHash, ServiceCallback<BasicResultResponse> serviceCallback) {
-        Client client = getClient();
-        client.addFilter(new HTTPBasicAuthFilter(username, passwordHash));
-
-        WebResource webResource = client
-                .resource(baseURL + "/login")
-                .queryParam("username", username)
-                .queryParam("password", passwordHash);
-
-        consumeItem(new ServiceInvocation<>(webResource, null, HttpMethod.POST, BasicResultResponse.class, serviceCallback));
+    public void setAuthenticateToken(String authenticationToken) {
+        this.authenticationToken = authenticationToken;
     }
 }

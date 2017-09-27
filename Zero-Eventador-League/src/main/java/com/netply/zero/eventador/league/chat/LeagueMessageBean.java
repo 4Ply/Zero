@@ -7,7 +7,6 @@ import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Pair;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.sun.jersey.api.client.ClientResponse;
@@ -48,7 +47,7 @@ public class LeagueMessageBean {
     private void parseMessage(Message message) {
         String messageText = message.getMessage();
         if (messageText.matches(ChatMatchers.LEAGUE_MATCHER)) {
-            Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(message.getId(), "Sure!"));
+            Service.create(botChanURL).put("/reply", new Reply(message.getId(), "Sure!"));
         } else if (messageText.matches(ChatMatchers.WHO_IS_PLAYING_MATCHER)) {
             CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message, platform);
         } else if (messageText.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
@@ -66,7 +65,7 @@ public class LeagueMessageBean {
         String player = message.getMessage().replaceAll(ChatMatchers.TRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
         TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(new User(String.valueOf(message.getSender()), platform), player);
 
-        Service.create(botChanURL).put("/trackedPlayer", new BasicSessionCredentials(), trackPlayerRequest, new ServiceCallback<Object>() {
+        Service.create(botChanURL).put("/trackedPlayer", trackPlayerRequest, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 MessageUtil.reply(botChanURL, message, "An unknown error has occurred. I was unable to track that player");
@@ -88,7 +87,7 @@ public class LeagueMessageBean {
         String player = message.getMessage().replaceAll(ChatMatchers.UNTRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
         TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(new User(String.valueOf(message.getSender()), platform), player);
 
-        Service.create(botChanURL).delete("/trackedPlayer", new BasicSessionCredentials(), trackPlayerRequest, new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete("/trackedPlayer", trackPlayerRequest, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 MessageUtil.reply(botChanURL, message, "An unknown error has occurred. I was unable to untrack that player");
@@ -116,7 +115,7 @@ public class LeagueMessageBean {
     }
 
     private void sendTrackedPlayersList(Message message) {
-        Service.create(botChanURL).post("/trackedPlayers", new BasicSessionCredentials(), new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
+        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 System.out.println(response.toString());

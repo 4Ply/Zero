@@ -5,7 +5,6 @@ import com.netply.zero.eventador.league.chat.persistence.LeagueChatDatabase;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
-import com.netply.zero.service.base.credentials.BasicSessionCredentials;
 import com.robrua.orianna.api.core.RiotAPI;
 import com.robrua.orianna.type.core.common.Region;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
@@ -45,7 +44,7 @@ public class LeagueGameStateChangedBean {
     @Scheduled(fixedDelay = 60000)
     @Async
     public void checkGameStates() {
-        Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+        Service.create(botChanURL).get("/allTrackedPlayers?platform=LEAGUE", null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -89,7 +88,7 @@ public class LeagueGameStateChangedBean {
                 e.printStackTrace();
             }
             String url = String.format("/trackers?player=%s&platform=%s", cleanTrackedPlayer, platform);
-            Service.create(botChanURL).get(url, new BasicSessionCredentials(), null, new ServiceCallback<Object>() {
+            Service.create(botChanURL).get(url, null, new ServiceCallback<Object>() {
                 @Override
                 public void onError(ClientResponse response) {
 
@@ -102,7 +101,7 @@ public class LeagueGameStateChangedBean {
                     String replyMessage = String.format("%s just finished a game! (and %s) - they placed %s wards, and killed %s wards",
                             trackedPlayer, didWin ? "WON" : "lost", game.getStats().getWardsPlaced(), game.getStats().getWardsKilled());
                     for (User user : users) {
-//                        Service.create(botChanURL).put("/reply", new BasicSessionCredentials(), new Reply(user.getClientID(), replyMessage));
+//                        Service.create(botChanURL).put("/reply", new Reply(user.getClientID(), replyMessage));
                     }
                 }
 

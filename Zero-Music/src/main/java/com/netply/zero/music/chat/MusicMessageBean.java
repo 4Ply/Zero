@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 @Component
 public class MusicMessageBean {
-    private static final String MUSIC_DIR = "/home/pawel/Music/";
+    public static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;

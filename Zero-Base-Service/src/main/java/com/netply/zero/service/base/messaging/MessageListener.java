@@ -53,8 +53,10 @@ public class MessageListener {
             Service.create(botChanURL).post(url, matcherList, null, new ServiceCallback<ArrayList>() {
                 @Override
                 public void onError(ClientResponse response) {
-                    logger.fatal("Failed to get messages: " + response.getStatus());
-                    logger.fatal(response.toString());
+                    if (response != null) {
+                        logger.fatal("Failed to get messages: " + response.getStatus());
+                        logger.fatal(response.toString());
+                    }
                 }
 
                 @Override

@@ -10,17 +10,19 @@ import javax.annotation.PostConstruct;
 
 @Component
 public class EventMockLoginBean {
-    private String botChanURL;
+    private final String botChanURL;
+    private final String authenticatenToken;
 
 
     @Autowired
-    public EventMockLoginBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+    public EventMockLoginBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.node.auth.token}") String authenticatenToken) {
         this.botChanURL = botChanURL;
+        this.authenticatenToken = authenticatenToken;
     }
 
     @Async
     @PostConstruct
     public void loginToBotChan() {
-        Service.create(botChanURL).setAuthenticateToken("test_user3");
+        Service.create(botChanURL).setAuthenticateToken(authenticatenToken);
     }
 }

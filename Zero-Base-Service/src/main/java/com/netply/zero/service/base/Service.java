@@ -45,12 +45,19 @@ public class Service {
         logger.info("Basic Response: " + output);
 
         try {
-            element.getServiceCallback().onSuccess(output);
+            if (!isResponseClassOfTypeString(element)) {
+                element.getServiceCallback().onSuccess(output);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         processComplexResult(element, output);
+    }
+
+    private static boolean isResponseClassOfTypeString(ServiceInvocation element) {
+        Class responseClass = element.getResponseClass();
+        return responseClass != null && responseClass.equals(String.class);
     }
 
     private static void processComplexResult(ServiceInvocation element, String output) {

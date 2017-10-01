@@ -2,8 +2,11 @@ package com.netply.zero.chatter.chat;
 
 import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Message;
+import com.netply.zero.service.base.Service;
+import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
+import com.sun.jersey.api.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,7 +35,62 @@ public class ChatterMessageBean {
 
     private void initMessageMatchers() {
         messageMatchers = new HashMap<>();
+        messageMatchers.put(ChatMatchers.GENERATE_PLATFORM_OTP, this::generatePlatformOTP);
+        messageMatchers.put(ChatMatchers.ALLOW_PLATFORM_OTP, this::allowPlatformOTP);
+        messageMatchers.put(ChatMatchers.LINK_PLATFORM, this::linkPlatform);
         messageMatchers.put(ChatMatchers.KYS, this::kys);
+    }
+
+    private void generatePlatformOTP(Message message) {
+        Service.create(botChanURL).get(String.format("/platformOTP?sender=%s&platform=%s", message.getSender(), message.getPlatform()), String.class, new ServiceCallback<String>() {
+            @Override
+            public void onError(ClientResponse response) {
+                MessageUtil.reply(botChanURL, message, "Failed to generate OTP");
+            }
+
+            @Override
+            public void onSuccess(String output) {
+                MessageUtil.reply(botChanURL, message, "OTP: " + output);
+            }
+        });
+    }
+
+    private void allowPlatformOTP(Message message) {
+        String messageText = removeMatcherText(message.getMessage(), ChatMatchers.ALLOW_PLATFORM_OTP).trim();
+
+        Service.create(botChanURL).get(String.format("/userOTP?sender=%s&platform=%s&platformOTP=%s", message.getSender(), message.getPlatform(), messageText), String.class, new ServiceCallback<String>() {
+            @Override
+            public void onError(ClientResponse response) {
+                MessageUtil.reply(botChanURL, message, "Failed to generate OTP");
+            }
+
+            @Override
+            public void onSuccess(String output) {
+                MessageUtil.reply(botChanURL, message, "OTP: " + output);
+            }
+        });
+    }
+
+    private void linkPlatform(Message message) {
+        String messageText = removeMatcherText(message.getMessage(), ChatMatchers.LINK_PLATFORM).trim();
+
+        if (!messageText.isEmpty()) {
+            Service.create(botChanURL).get(String.format("/linkPlatform?&sender=%s&platform=%s&userOTP=%s", message.getSender(), message.getPlatform(), messageText), String.class, new ServiceCallback<String>() {
+                @Override
+                public void onError(ClientResponse response) {
+                    MessageUtil.reply(botChanURL, message, "Failed to link platform");
+                }
+
+                @Override
+                public void onSuccess(String output) {
+                    MessageUtil.reply(botChanURL, message, "Linked! " + output);
+                }
+            });
+        }
+    }
+
+    private String removeMatcherText(String messageText, String matcher) {
+        return messageText.replaceAll(matcher.replace("(.*)", "").replace("(.*)", ""), "").trim();
     }
 
     private void kys(Message message) {

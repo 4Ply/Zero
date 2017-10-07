@@ -1,0 +1,6 @@
+feedparser
+redis
+redisworks
+urllib
+json
+requests

@@ -25,7 +25,8 @@ def parse_all_known_feeds():
             continue
         else:
             new_feeds.append(parse_feed(feed))
-    root.feeds = new_feeds
+    if new_feeds != []:
+        root.feeds = new_feeds
 
 
 def parse_feed(feed):

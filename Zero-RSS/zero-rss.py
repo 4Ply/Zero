@@ -21,7 +21,7 @@ def parse_all_known_feeds():
     print(root.feeds)
     new_feeds = []
     for feed in root.feeds:
-        if feed is '' or feed is None or feed is {}:
+        if feed == '' or feed == None or feed == {}:
             continue
         else:
             new_feeds.append(parse_feed(feed))

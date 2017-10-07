@@ -11,7 +11,7 @@ bot_chan_url = "https://app2.bot-chan.com/api"
 api_key = os.environ['RSS_API_KEY']
 
 
-root = Root()
+root = Root(host='redis', port=6379, db=0)
 #root.feeds = [{}]
 if root.feeds == None:
     root.feeds = [{}]

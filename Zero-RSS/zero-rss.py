@@ -69,17 +69,18 @@ def check_messages():
 
             message = data['message']
             message_id = data['id']
+            platform_id= data['platformID']
             print(message)
 
             if bool(re.match(matchers[0], message)):
                 feed_url = message.split(' ')[2]
                 print("Feed URL: " + feed_url)
-                add_platform_user_to_feed(feed_url, message_id)
+                add_platform_user_to_feed(feed_url, platform_id)
                 reply_add_success(message_id)
             elif bool(re.match(matchers[1], message)):
                 feed_url = message.split(' ')[2]
                 print("Feed URL: " + feed_url)
-                remove_platform_user_from_feed(feed_url, message_id)
+                remove_platform_user_from_feed(feed_url, platform_id)
                 reply_remove_success(message_id)
             elif bool(re.match(matchers[2], message)):
                 reply_with_feed_list(message_id)

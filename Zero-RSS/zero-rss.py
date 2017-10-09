@@ -3,6 +3,7 @@
 import feedparser
 import json
 import os
+import re
 import requests
 import time
 from redisworks import Root
@@ -18,7 +19,7 @@ if root.feeds == None:
 
 
 def parse_all_known_feeds():
-    print(root.feeds)
+    #print(root.feeds)
     new_feeds = []
     for feed in root.feeds:
         if feed == '' or feed == None or feed == {}:
@@ -30,8 +31,8 @@ def parse_all_known_feeds():
 
 
 def parse_feed(feed):
-    print("parse feed: " + str(feed))
-    print("parsed feed items: " + str(feed['parsed_items']))
+    #print("parse feed: " + str(feed))
+    #print("parsed feed items: " + str(feed['parsed_items']))
 
     items = feedparser.parse(feed['feed_url'])['items']
     for item in items:
@@ -47,7 +48,7 @@ def parse_feed(feed):
 
 def consume_feed_item(feed_url, item, platform_users):
     for message_id in platform_users:
-        print(str(message_id) + " --- " + item['title'])
+        #print(str(message_id) + " --- " + item['title'])
         headers = {'content-type': 'application/json'}
         message = "New item '%s' from feed: %s" % (item['title'], feed_url)
         requests.put((bot_chan_url + "/directReply/%s?apikey=%s&message=%s") % (message_id, api_key, message),
@@ -57,7 +58,7 @@ def consume_feed_item(feed_url, item, platform_users):
 def check_messages():
     try:
         headers = {'content-type': 'application/json'}
-        matchers = ['(?i)watch feed http(|s)://.*']
+        matchers = ['(?i)watch feed http(|s)://.*', '(?i)(unwatch|remove) feed http(|s)://.*', '(?i)list feeds.*']
         payload = {'matchers': matchers, 'platform': 'RSS'}
         response = requests.post((bot_chan_url + "/uniqueMessages?apikey=%s") % api_key,
                 headers=headers,
@@ -69,11 +70,19 @@ def check_messages():
             message = data['message']
             message_id = data['id']
             print(message)
-            feed_url = message.split(' ')[2]
-            print("Feed URL: " + feed_url)
 
-            add_platform_user_to_feed(feed_url, message_id)
-            reply_add_success(message_id)
+            if bool(re.match(matchers[0], message)):
+                feed_url = message.split(' ')[2]
+                print("Feed URL: " + feed_url)
+                add_platform_user_to_feed(feed_url, message_id)
+                reply_add_success(message_id)
+            elif bool(re.match(matchers[1], message)):
+                feed_url = message.split(' ')[2]
+                print("Feed URL: " + feed_url)
+                remove_platform_user_from_feed(feed_url, message_id)
+                reply_remove_success(message_id)
+            elif bool(re.match(matchers[2], message)):
+                reply_with_feed_list(message_id)
     except Exception as e:
         print(e)
         pass
@@ -81,6 +90,15 @@ def check_messages():
 
 def reply_add_success(message_id):
     message = "New feed added!"
+    reply(message_id, message)
+
+
+def reply_remove_success(message_id):
+    message = "Feed removed from your watchlist"
+    reply(message_id, message)
+
+
+def reply(message_id, message):
     headers = {'content-type': 'application/json'}
     payload = {'originalMessageID': message_id, 'message': message}
     requests.put((bot_chan_url + "/reply?apikey=%s") % api_key,
@@ -102,6 +120,36 @@ def add_platform_user_to_feed(feed_url, platform_user):
         feed_item['platform_users'].append(platform_user)
 
     root.feeds = feeds
+
+
+def remove_platform_user_from_feed(feed_url, platform_user):
+    feeds = [x for x in root.feeds if x != {}]
+    feed_item = None
+    for feed_object in feeds:
+        if (feed_object['feed_url'] == feed_url):
+            feed_item = feed_object
+
+    if feed_item is None:
+        feed_item = {'feed_url': feed_url, 'platform_users': [], 'parsed_items': []}
+        feeds.append(feed_item)
+    if platform_user in feed_item['platform_users']:
+        feed_item['platform_users'].remove(platform_user)
+    if feed_item['platform_users'] == []:
+        feeds.remove(feed_item)
+
+    root.feeds = feeds
+
+
+def reply_with_feed_list(message_id):
+    feeds = [x for x in root.feeds if x != {}]
+    feed_urls = []
+
+    for feed_item in feeds:
+        print(feed_item)
+        if message_id in feed_item['platform_users']:
+            feed_urls.append(feed_item['feed_url'])
+
+    reply(message_id, str(feed_urls))
 
 
 if __name__ == "__main__":

@@ -69,24 +69,34 @@ def check_messages():
 
             message = data['message']
             message_id = data['id']
-            platform_id= data['platformID']
+            user_id = get_user_id(data['platformID'])
             print(message)
 
             if bool(re.match(matchers[0], message)):
                 feed_url = message.split(' ')[2]
                 print("Feed URL: " + feed_url)
-                add_platform_user_to_feed(feed_url, platform_id)
+                add_platform_user_to_feed(feed_url, user_id)
                 reply_add_success(message_id)
             elif bool(re.match(matchers[1], message)):
                 feed_url = message.split(' ')[2]
                 print("Feed URL: " + feed_url)
-                remove_platform_user_from_feed(feed_url, platform_id)
+                remove_platform_user_from_feed(feed_url, user_id)
                 reply_remove_success(message_id)
             elif bool(re.match(matchers[2], message)):
-                reply_with_feed_list(message_id)
+                reply_with_feed_list(user_id, message_id)
     except Exception as e:
         print(e)
         pass
+    except:
+        print("Fatal error occured")
+        pass
+
+
+def get_user_id(platform_id):
+    headers = {'content-type': 'application/json'}
+    response = requests.get((bot_chan_url + "/userID?apikey=%s&platformID=%s&platform=%s") % (api_key, platform_id, 'RSS'),
+            headers=headers)
+    return response
 
 
 def reply_add_success(message_id):
@@ -141,20 +151,25 @@ def remove_platform_user_from_feed(feed_url, platform_user):
     root.feeds = feeds
 
 
-def reply_with_feed_list(message_id):
+def reply_with_feed_list(platform_id, message_id):
     feeds = [x for x in root.feeds if x != {}]
     feed_urls = []
 
     for feed_item in feeds:
         print(feed_item)
-        if message_id in feed_item['platform_users']:
+        if platform_id in feed_item['platform_users']:
             feed_urls.append(feed_item['feed_url'])
 
-    reply(message_id, str(feed_urls))
+    reply(message_id, 'Feeds: %s' % ('\n'.join(feed_urls)))
 
 
 if __name__ == "__main__":
+    i = 0
     while True:
+        i = i + 1
         check_messages()
-        parse_all_known_feeds()
-        time.sleep(5)
+        if i % 5 == 0:
+            parse_all_known_feeds()
+        if i >= 5:
+            i = 0
+        time.sleep(1)

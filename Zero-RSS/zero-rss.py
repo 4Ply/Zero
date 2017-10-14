@@ -93,9 +93,11 @@ def check_messages():
 
 
 def get_user_id(platform_id):
+    print("Requesting userID for %s" % platform_id)
     headers = {'content-type': 'application/json'}
     response = requests.get((bot_chan_url + "/userID?apikey=%s&platformID=%s&platform=%s") % (api_key, platform_id, 'RSS'),
             headers=headers)
+    print("RESPONSE: %s" % response)
     return response
 
 

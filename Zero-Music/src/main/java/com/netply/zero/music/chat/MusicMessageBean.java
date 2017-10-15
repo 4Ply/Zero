@@ -4,10 +4,10 @@ import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Reply;
 import com.netply.zero.service.base.Service;
-import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
-import com.sun.jersey.api.client.ClientResponse;
+import com.netply.zero.service.base.permissions.PermissionUtil;
+import com.netply.zero.service.base.permissions.PermissionsCallback;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,23 +72,16 @@ public class MusicMessageBean {
     }
 
     private void stopPlayback(FromUserMessage message) {
-        Service.create(botChanURL).post(String.format("/hasPermission/bot.chan.music.stop?platformID=%s", message.getPlatformID()), Boolean.class, new ServiceCallback<Boolean>() {
+        PermissionUtil.checkPermission(botChanURL, message, "bot.chan.music.stop", new PermissionsCallback() {
             @Override
-            public void onError(ClientResponse response) {
-
+            public void permissionGranted(String permission) {
+                executeCmusCommand(new String[]{"-s"});
+                MessageUtil.reply(botChanURL, message, "Playback stopped.");
             }
 
             @Override
-            public void onSuccess(String output) {
-
-            }
-
-            @Override
-            public void onSuccess(Boolean parsedResponse) {
-                if (parsedResponse != null && parsedResponse) {
-                    executeCmusCommand(new String[]{"-s"});
-                    MessageUtil.reply(botChanURL, message, "Playback stopped.");
-                }
+            public void permissionDenied(String permission) {
+                MessageUtil.reply(botChanURL, message, "You don't have permission to do that.");
             }
         });
     }

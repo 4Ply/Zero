@@ -14,7 +14,14 @@ import java.util.stream.Collectors;
 
 public class PermissionUtil {
     public static void checkPermission(String baseURL, FromUserMessage message, String permission, PermissionsCallback permissionsCallback) {
-        Service.create(baseURL).post(String.format("/hasPermission/%s?platformID=%s", permission, message.getPlatformID()), Boolean.class, new ServiceCallback<Boolean>() {
+        String permissionURL;
+        try {
+            permissionURL = URLEncoder.encode(permission, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return;
+        }
+        Service.create(baseURL).get(String.format("/hasPermission/%s?platformID=%s", permissionURL, message.getPlatformID()), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
                 permissionsCallback.permissionDenied(permission);

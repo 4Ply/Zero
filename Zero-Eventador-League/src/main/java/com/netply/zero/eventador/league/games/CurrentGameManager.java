@@ -1,14 +1,9 @@
 package com.netply.zero.eventador.league.games;
 
-import com.netply.botchan.web.model.Message;
-import com.netply.botchan.web.model.User;
-import com.netply.zero.service.base.ListUtil;
-import com.netply.zero.service.base.Service;
-import com.netply.zero.service.base.ServiceCallback;
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.robrua.orianna.type.core.currentgame.CurrentGame;
 import com.robrua.orianna.type.core.currentgame.Participant;
-import com.sun.jersey.api.client.ClientResponse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,28 +11,28 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CurrentGameManager {
-    public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final Message message, String platform) {
-        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
-            @Override
-            public void onError(ClientResponse response) {
-                System.out.println(response.toString());
-                MessageUtil.reply(botChanURL, message, "Error retrieving your tracked players");
-            }
-
-            @Override
-            public void onSuccess(String output) {
-                List<String> trackedPlayers = ListUtil.stringToArray(output, String[].class);
-                parseCurrentGamesForTrackedPlayers(botChanURL, trackedPlayers, message);
-            }
-
-            @Override
-            public void onSuccess(Object parsedResponse) {
-
-            }
-        });
+    public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final FromUserMessage message, String platform) {
+//        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
+//            @Override
+//            public void onError(ClientResponse response) {
+//                System.out.println(response.toString());
+//                MessageUtil.reply(botChanURL, message, "Error retrieving your tracked players");
+//            }
+//
+//            @Override
+//            public void onSuccess(String output) {
+//                List<String> trackedPlayers = ListUtil.stringToArray(output, String[].class);
+//                parseCurrentGamesForTrackedPlayers(botChanURL, trackedPlayers, message);
+//            }
+//
+//            @Override
+//            public void onSuccess(Object parsedResponse) {
+//
+//            }
+//        });
     }
 
-    public static void parseCurrentGamesForTrackedPlayers(String botChanURL, List<String> trackedPlayers, Message message) {
+    public static void parseCurrentGamesForTrackedPlayers(String botChanURL, List<String> trackedPlayers, FromUserMessage message) {
         Consumer<HashMap<String, CurrentGame>> inGameSummonerListConsumer = currentGameHashMap -> {
             String playersPlaying = currentGameHashMap.entrySet().stream().filter(currentGameEntry -> currentGameEntry.getValue() != null).map(currentGameEntry -> {
                 String summonerName = currentGameEntry.getKey();

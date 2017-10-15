@@ -1,8 +1,8 @@
 package com.netply.zero.scheduler.chat;
 
 import com.netply.botchan.web.model.Event;
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Message;
 import com.netply.zero.scheduler.job.SimpleJob;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
@@ -50,7 +50,7 @@ public class SchedulerMessageBean {
         messageListener.checkMessages("/messages", new MatcherList(platform, messageMatchers), this::parseMessage);
     }
 
-    private void parseMessage(Message message) {
+    private void parseMessage(FromUserMessage message) {
         String messageText = message.getMessage();
         if (messageText.matches(EventMatchers.REMIND_ME_MATCHER)) {
             messageText = messageText.replaceAll(EventMatchers.REMIND_ME_MATCHER.replace("(.*)", "").replace("(.*)", ""), "").trim();
@@ -61,7 +61,7 @@ public class SchedulerMessageBean {
             String[] split = messageText.split("#");
             String remindMeCronTime = split[0];
             String reminder = split[1];
-            String cronName = message.getSender() + "--" + messageText;
+            String cronName = message.getPlatformID() + "--" + messageText;
             JobDetail job = newJob(SimpleJob.class)
                     .withIdentity(cronName, "reminders")
                     .withDescription(reminder)

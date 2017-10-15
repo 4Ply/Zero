@@ -1,7 +1,6 @@
 package com.netply.zero.service.base.permissions;
 
-import com.netply.botchan.web.model.Message;
-import com.netply.botchan.web.model.User;
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
@@ -14,15 +13,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class PermissionUtil {
-    public static void checkPermission(String baseURL, Message message, String permission, PermissionsCallback permissionsCallback) {
-        String permissionURL;
-        try {
-            permissionURL = URLEncoder.encode(permission, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return;
-        }
-        Service.create(baseURL).post(String.format("/hasPermission?permission=%s", permissionURL), new User(message.getSender(), message.getPlatform()), Boolean.class, new ServiceCallback<Boolean>() {
+    public static void checkPermission(String baseURL, FromUserMessage message, String permission, PermissionsCallback permissionsCallback) {
+        Service.create(baseURL).post(String.format("/hasPermission/%s?platformID=%s", permission, message.getPlatformID()), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
                 permissionsCallback.permissionDenied(permission);
@@ -52,7 +44,7 @@ public class PermissionUtil {
             e.printStackTrace();
             return;
         }
-        Service.create(baseURL).get(String.format("/usersForPermission?permission=%s", permissionURL), null, new ServiceCallback<Object>() {
+        Service.create(baseURL).get(String.format("/usersForPermission/%s", permissionURL), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

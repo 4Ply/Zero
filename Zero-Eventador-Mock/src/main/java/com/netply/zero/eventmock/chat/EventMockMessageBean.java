@@ -1,7 +1,7 @@
 package com.netply.zero.eventmock.chat;
 
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Message;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.permissions.PermissionUtil;
 import com.netply.zero.service.base.permissions.PermissionsCallback;
@@ -20,7 +20,7 @@ public class EventMockMessageBean {
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;
-    private Map<String, Consumer<Message>> messageMatchers;
+    private Map<String, Consumer<FromUserMessage>> messageMatchers;
 
 
     @Autowired
@@ -41,15 +41,14 @@ public class EventMockMessageBean {
         messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
     }
 
-    private void parseMessage(Message message) {
+    private void parseMessage(FromUserMessage message) {
         messageMatchers.keySet().stream()
                 .filter(message.getMessage()::matches)
                 .map(messageMatchers::get)
                 .forEach(messageConsumer -> messageConsumer.accept(message));
     }
 
-    private void mockEvent(Message message) {
-        System.out.printf("MOCK EVENT: [%s] : %s%n", message.getSender(), message.getMessage());
+    private void mockEvent(FromUserMessage message) {
         PermissionUtil.checkPermission(botChanURL, message, "bot.chan.event.mock", new PermissionsCallback() {
             @Override
             public void permissionGranted(String permission) {

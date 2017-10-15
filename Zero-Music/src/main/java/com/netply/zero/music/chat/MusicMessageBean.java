@@ -1,9 +1,8 @@
 package com.netply.zero.music.chat;
 
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Message;
 import com.netply.botchan.web.model.Reply;
-import com.netply.botchan.web.model.User;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.messaging.MessageListener;
@@ -16,8 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.net.URLEncoder;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -28,7 +29,7 @@ public class MusicMessageBean {
     private String platform;
     private MessageListener messageListener;
     private Process songProcess;
-    private Map<String, Consumer<Message>> messageMatchers;
+    private Map<String, Consumer<FromUserMessage>> messageMatchers;
 
 
     @Autowired
@@ -44,13 +45,12 @@ public class MusicMessageBean {
         messageMatchers.put(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER, this::downloadAndPlay);
         messageMatchers.put(ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER_SHORTCUT, this::downloadAndPlay);
         messageMatchers.put(ChatMatchers.DOWNLOAD_MUSIC_MATCHER, this::download);
-        messageMatchers.put(ChatMatchers.DOWNLOAD_MUSIC_MATCHER, this::download);
         messageMatchers.put(ChatMatchers.PLAY_MUSIC_MATCHER, this::playSong);
         messageMatchers.put(ChatMatchers.STOP_PLAYING, this::stopPlayback);
         messageMatchers.put(ChatMatchers.SKIP_SONG, this::skipSong);
     }
 
-    private void downloadAndPlay(Message message) {
+    private void downloadAndPlay(FromUserMessage message) {
         String messageText = message.getMessage();
         String filePath = removeMatcherText(messageText, ChatMatchers.DOWNLOAD_AND_PLAY_MUSIC_MATCHER);
         String outputFile = downloadSong(message, filePath);
@@ -59,27 +59,20 @@ public class MusicMessageBean {
         }
     }
 
-    private void download(Message message) {
+    private void download(FromUserMessage message) {
         String messageText = message.getMessage();
         String filePath = removeMatcherText(messageText, ChatMatchers.DOWNLOAD_MUSIC_MATCHER);
         downloadSong(message, filePath);
     }
 
-    private void playSong(Message message) {
+    private void playSong(FromUserMessage message) {
         String messageText = message.getMessage();
         String filePath = removeMatcherText(messageText, ChatMatchers.PLAY_MUSIC_MATCHER);
         playSong(message, filePath);
     }
 
-    private void stopPlayback(Message message) {
-        String permission;
-        try {
-            permission = URLEncoder.encode("bot.chan.music.stop", "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return;
-        }
-        Service.create(botChanURL).post(String.format("/hasPermission?permission=%s", permission), new User(message.getSender(), message.getPlatform()), Boolean.class, new ServiceCallback<Boolean>() {
+    private void stopPlayback(FromUserMessage message) {
+        Service.create(botChanURL).post(String.format("/hasPermission/bot.chan.music.stop?platformID=%s", message.getPlatformID()), Boolean.class, new ServiceCallback<Boolean>() {
             @Override
             public void onError(ClientResponse response) {
 
@@ -100,7 +93,7 @@ public class MusicMessageBean {
         });
     }
 
-    private void skipSong(Message message) {
+    private void skipSong(FromUserMessage message) {
         executeCmusCommand(new String[]{"-n"});
         MessageUtil.reply(botChanURL, message, "Track skipped!");
     }
@@ -114,14 +107,14 @@ public class MusicMessageBean {
         messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
     }
 
-    private void parseMessage(Message message) {
+    private void parseMessage(FromUserMessage message) {
         messageMatchers.keySet().stream()
                 .filter(message.getMessage()::matches)
                 .map(messageMatchers::get)
                 .forEach(messageConsumer -> messageConsumer.accept(message));
     }
 
-    private String downloadSong(Message message, String youtubeURL) {
+    private String downloadSong(FromUserMessage message, String youtubeURL) {
         try {
             Service.create(botChanURL).put("/reply", new Reply(message.getId(), "Downloading " + youtubeURL));
 
@@ -166,7 +159,7 @@ public class MusicMessageBean {
         return null;
     }
 
-    private void playSong(Message message, String filePath) {
+    private void playSong(FromUserMessage message, String filePath) {
         if (songProcess != null) {
 //            try {
 //                songProcess.getOutputStream().write("q\n".getBytes());
@@ -194,13 +187,11 @@ public class MusicMessageBean {
         }
         Service.create(botChanURL).put("/reply", new Reply(message.getId(), reply));
 
-        Thread stopSongProcess = new Thread() {
-            public void run() {
-                if (songProcess != null) {
-                    songProcess.destroy();
-                }
+        Thread stopSongProcess = new Thread(() -> {
+            if (songProcess != null) {
+                songProcess.destroy();
             }
-        };
+        });
 
         Runtime.getRuntime().addShutdownHook(stopSongProcess);
     }

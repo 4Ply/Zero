@@ -1,6 +1,9 @@
 package com.netply.zero.eventador.league.chat;
 
-import com.netply.botchan.web.model.*;
+import com.netply.botchan.web.model.FromUserMessage;
+import com.netply.botchan.web.model.MatcherList;
+import com.netply.botchan.web.model.Reply;
+import com.netply.botchan.web.model.TrackPlayerRequest;
 import com.netply.zero.eventador.league.games.CurrentGameManager;
 import com.netply.zero.eventador.league.games.League;
 import com.netply.zero.service.base.ListUtil;
@@ -44,7 +47,7 @@ public class LeagueMessageBean {
         messageListener.checkMessages("/messages", new MatcherList(platform, messageMatchers), this::parseMessage);
     }
 
-    private void parseMessage(Message message) {
+    private void parseMessage(FromUserMessage message) {
         String messageText = message.getMessage();
         if (messageText.matches(ChatMatchers.LEAGUE_MATCHER)) {
             Service.create(botChanURL).put("/reply", new Reply(message.getId(), "Sure!"));
@@ -61,11 +64,11 @@ public class LeagueMessageBean {
         }
     }
 
-    private void trackPlayer(final Message message) {
+    private void trackPlayer(final FromUserMessage message) {
         String player = message.getMessage().replaceAll(ChatMatchers.TRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
-        TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(new User(String.valueOf(message.getSender()), platform), player);
+        TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(null, player);
 
-        Service.create(botChanURL).put("/trackedPlayer", trackPlayerRequest, new ServiceCallback<Object>() {
+        Service.create(botChanURL).put(String.format("/trackedPlayer?platformID=%s", message.getPlatformID()), trackPlayerRequest, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 MessageUtil.reply(botChanURL, message, "An unknown error has occurred. I was unable to track that player");
@@ -83,11 +86,11 @@ public class LeagueMessageBean {
         });
     }
 
-    private void unTrackPlayer(final Message message) {
+    private void unTrackPlayer(final FromUserMessage message) {
         String player = message.getMessage().replaceAll(ChatMatchers.UNTRACK_PLAYER_MATCHER.replace(" (.*)", ""), "").trim();
-        TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(new User(String.valueOf(message.getSender()), platform), player);
+        TrackPlayerRequest trackPlayerRequest = new TrackPlayerRequest(null, player);
 
-        Service.create(botChanURL).delete("/trackedPlayer", trackPlayerRequest, new ServiceCallback<Object>() {
+        Service.create(botChanURL).delete(String.format("/trackedPlayer?platformID=%s", message.getPlatformID()), trackPlayerRequest, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 MessageUtil.reply(botChanURL, message, "An unknown error has occurred. I was unable to untrack that player");
@@ -105,7 +108,7 @@ public class LeagueMessageBean {
         });
     }
 
-    private void checkElo(Message message) {
+    private void checkElo(FromUserMessage message) {
         String player = message.getMessage().replaceAll(ChatMatchers.CHECK_ELO_MATCHER.replace(" (.*)", ""), "").trim();
         String rankedStats = "";
         for (Pair<String, String> tierQueueTypeImmutablePair : League.getPlayerElo(player)) {
@@ -114,8 +117,8 @@ public class LeagueMessageBean {
         MessageUtil.reply(botChanURL, message, player + " has the following ranked stats:" + "\n" + rankedStats.trim());
     }
 
-    private void sendTrackedPlayersList(Message message) {
-        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
+    private void sendTrackedPlayersList(FromUserMessage message) {
+        Service.create(botChanURL).post("/trackedPlayers?platformID=%s", message.getPlatformID(), null, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
                 System.out.println(response.toString());

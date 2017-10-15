@@ -1,7 +1,7 @@
 package com.netply.zero.status;
 
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Message;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.netply.zero.service.base.permissions.PermissionUtil;
@@ -27,7 +27,7 @@ public class StatusMessageBean {
     private String botChanURL;
     private String platform;
     private MessageListener messageListener;
-    private Map<String, Consumer<Message>> messageMatchers;
+    private Map<String, Consumer<FromUserMessage>> messageMatchers;
     private List<StatusEndpoint> statusEndpoints;
     private String serverStatusPermission = "bot.chan.status.info";
 
@@ -52,7 +52,7 @@ public class StatusMessageBean {
         messageMatchers.put(ChatMatchers.STATUS, this::sendCurrentStatuses);
     }
 
-    private void sendCurrentStatuses(Message message) {
+    private void sendCurrentStatuses(FromUserMessage message) {
         PermissionUtil.checkPermission(botChanURL, message, serverStatusPermission, new PermissionsCallback() {
             @Override
             public void permissionGranted(String permission) {
@@ -102,7 +102,7 @@ public class StatusMessageBean {
         messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
     }
 
-    private void parseMessage(Message message) {
+    private void parseMessage(FromUserMessage message) {
         messageMatchers.keySet().stream()
                 .filter(message.getMessage()::matches)
                 .map(messageMatchers::get)

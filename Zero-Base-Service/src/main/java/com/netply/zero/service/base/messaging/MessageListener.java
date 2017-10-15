@@ -1,7 +1,7 @@
 package com.netply.zero.service.base.messaging;
 
+import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.MatcherList;
-import com.netply.botchan.web.model.Message;
 import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
@@ -24,10 +24,10 @@ public class MessageListener {
         this.platform = platform;
     }
 
-    public void checkMessages(String url, MatcherList matcherList, final Consumer<Message> messageConsumer) {
+    public void checkMessages(String url, MatcherList matcherList, final Consumer<FromUserMessage> messageConsumer) {
         checkSubscribedObjects(url, matcherList, output -> {
-            List<Message> messages = ListUtil.stringToArray(output, Message[].class);
-            for (Message message : messages) {
+            List<FromUserMessage> messages = ListUtil.stringToArray(output, FromUserMessage[].class);
+            for (FromUserMessage message : messages) {
                 logger.info(message.toString());
                 deleteMessage(message, messageConsumer);
             }
@@ -74,7 +74,7 @@ public class MessageListener {
         }
     }
 
-    private void deleteMessage(Message message, Consumer<Message> messageConsumer) {
+    private void deleteMessage(FromUserMessage message, Consumer<FromUserMessage> messageConsumer) {
         String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, message.getId());
         Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
             @Override

@@ -19,6 +19,7 @@ if root.feeds == None:
 
 
 def parse_all_known_feeds():
+    #print("Parsing known feeds...")
     #print(root.feeds)
     new_feeds = []
     for feed in root.feeds:
@@ -51,7 +52,7 @@ def consume_feed_item(feed_url, item, platform_users):
         #print(str(message_id) + " --- " + item['title'])
         headers = {'content-type': 'application/json'}
         message = "New item '%s' from feed: %s" % (item['title'], feed_url)
-        requests.put((bot_chan_url + "/directReply/%s?apikey=%s&message=%s") % (message_id, api_key, message),
+        requests.put((bot_chan_url + "/directMessage/%s?apikey=%s&message=%s") % (message_id, api_key, message),
                 headers=headers)
 
 
@@ -97,8 +98,8 @@ def get_user_id(platform_id):
     headers = {'content-type': 'application/json'}
     response = requests.get((bot_chan_url + "/userID?apikey=%s&platformID=%s&platform=%s") % (api_key, platform_id, 'RSS'),
             headers=headers)
-    print("RESPONSE: %s" % response)
-    return response
+    #print("RESPONSE: %s" % response.text)
+    return response.text
 
 
 def reply_add_success(message_id):

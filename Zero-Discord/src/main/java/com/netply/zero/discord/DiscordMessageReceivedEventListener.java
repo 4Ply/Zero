@@ -15,14 +15,12 @@ import java.util.logging.Logger;
 
 public class DiscordMessageReceivedEventListener implements IListener<MessageReceivedEvent> {
     private String botChanURL;
-    private String platform;
     private TrackedUserManager trackedUserManager;
     private Supplier<String> botChanUserID;
 
 
-    public DiscordMessageReceivedEventListener(String botChanURL, String platform, TrackedUserManager trackedUserManager, Supplier<String> botChanUserID) {
+    public DiscordMessageReceivedEventListener(String botChanURL, TrackedUserManager trackedUserManager, Supplier<String> botChanUserID) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
         this.trackedUserManager = trackedUserManager;
         this.botChanUserID = botChanUserID;
     }
@@ -37,7 +35,7 @@ public class DiscordMessageReceivedEventListener implements IListener<MessageRec
 
         boolean isDirectMessage = isDirectMessage(messageReceivedEvent);
         trackedUserManager.addUser(sender);
-        Service.create(botChanURL).put("/message", new Message(content, sender, platform, isDirectMessage));
+        Service.create(botChanURL).put("/message", new Message(content, sender, isDirectMessage));
         StatusUtil.setLastMessageReceivedDate(new Date());
         StatusUtil.incrementReceivedMessagesCounter();
     }

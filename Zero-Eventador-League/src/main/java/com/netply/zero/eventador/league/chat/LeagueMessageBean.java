@@ -1,7 +1,6 @@
 package com.netply.zero.eventador.league.chat;
 
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Reply;
 import com.netply.botchan.web.model.TrackPlayerRequest;
 import com.netply.zero.eventador.league.games.CurrentGameManager;
@@ -24,15 +23,13 @@ import java.util.List;
 @Component
 public class LeagueMessageBean {
     private String botChanURL;
-    private String platform;
     private MessageListener messageListener;
 
 
     @Autowired
-    public LeagueMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
+    public LeagueMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
-        messageListener = new MessageListener(botChanURL, platform);
+        messageListener = new MessageListener(botChanURL);
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
@@ -44,7 +41,7 @@ public class LeagueMessageBean {
         messageMatchers.add(ChatMatchers.UNTRACK_PLAYER_MATCHER);
         messageMatchers.add(ChatMatchers.CHECK_ELO_MATCHER);
         messageMatchers.add(ChatMatchers.WHO_AM_I_TRACKING_MATCHER);
-        messageListener.checkMessages("/messages", new MatcherList(platform, messageMatchers), this::parseMessage);
+        messageListener.checkMessages("/messages", messageMatchers, this::parseMessage);
     }
 
     private void parseMessage(FromUserMessage message) {
@@ -52,7 +49,7 @@ public class LeagueMessageBean {
         if (messageText.matches(ChatMatchers.LEAGUE_MATCHER)) {
             Service.create(botChanURL).put("/reply", new Reply(message.getId(), "Sure!"));
         } else if (messageText.matches(ChatMatchers.WHO_IS_PLAYING_MATCHER)) {
-            CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message, platform);
+            CurrentGameManager.sendCurrentGamesForTrackedPlayers(botChanURL, message);
         } else if (messageText.matches(ChatMatchers.TRACK_PLAYER_MATCHER)) {
             trackPlayer(message);
         } else if (messageText.matches(ChatMatchers.UNTRACK_PLAYER_MATCHER)) {

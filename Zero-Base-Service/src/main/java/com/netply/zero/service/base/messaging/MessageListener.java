@@ -1,7 +1,7 @@
 package com.netply.zero.service.base.messaging;
 
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
+import com.netply.botchan.web.model.MatcherListWrapper;
 import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
@@ -16,15 +16,13 @@ import java.util.function.Consumer;
 public class MessageListener {
     private Logger logger = Logger.getLogger(this.getClass());
     private String botChanURL;
-    private String platform;
 
 
-    public MessageListener(String botChanURL, String platform) {
+    public MessageListener(String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
     }
 
-    public void checkMessages(String url, MatcherList matcherList, final Consumer<FromUserMessage> messageConsumer) {
+    public void checkMessages(String url, ArrayList<String> matcherList, final Consumer<FromUserMessage> messageConsumer) {
         checkSubscribedObjects(url, matcherList, output -> {
             List<FromUserMessage> messages = ListUtil.stringToArray(output, FromUserMessage[].class);
             for (FromUserMessage message : messages) {
@@ -36,7 +34,7 @@ public class MessageListener {
         });
     }
 
-    public void checkReplies(String url, MatcherList matcherList, final Consumer<ToUserMessage> replyConsumer) {
+    public void checkReplies(String url, ArrayList<String> matcherList, final Consumer<ToUserMessage> replyConsumer) {
         checkSubscribedObjects(url, matcherList, output -> {
             List<ToUserMessage> messages = ListUtil.stringToArray(output, ToUserMessage[].class);
             for (ToUserMessage toUserMessage : messages) {
@@ -48,9 +46,9 @@ public class MessageListener {
         });
     }
 
-    public void checkSubscribedObjects(String url, MatcherList matcherList, Consumer<String> successConsumer) {
+    public void checkSubscribedObjects(String url, ArrayList<String> matcherList, Consumer<String> successConsumer) {
         try {
-            Service.create(botChanURL).post(url, matcherList, null, new ServiceCallback<ArrayList>() {
+            Service.create(botChanURL).post(url, new MatcherListWrapper(matcherList), null, new ServiceCallback<ArrayList>() {
                 @Override
                 public void onError(ClientResponse response) {
                     if (response != null) {
@@ -75,7 +73,7 @@ public class MessageListener {
     }
 
     private void deleteMessage(FromUserMessage message, Consumer<FromUserMessage> messageConsumer) {
-        String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, message.getId());
+        String deleteMessageURL = String.format("/message?&id=%s", message.getId());
         Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
@@ -95,8 +93,8 @@ public class MessageListener {
     }
 
     private void deleteReply(ToUserMessage toUserMessage, Consumer<ToUserMessage> replyConsumer) {
-        String deleteMessageURL = String.format("/reply?platform=%s&id=%s", platform, toUserMessage.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
+        String deleteReplyURL = String.format("/reply?&id=%s", toUserMessage.getId());
+        Service.create(botChanURL).delete(deleteReplyURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

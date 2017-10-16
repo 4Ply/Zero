@@ -1,6 +1,5 @@
 package com.netply.zero.discord;
 
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.ToUserMessage;
 import com.netply.zero.discord.chat.DiscordChatManager;
 import com.netply.zero.discord.persistence.TrackedUserManager;
@@ -20,7 +19,6 @@ public class DiscordMessageBean {
     private final String botChanURL;
     private MessageListener messageListener;
     private String authenticatenToken;
-    private String platform;
     private DiscordChatManager discordChatManager;
     private TrackedUserManager trackedUserManager;
 
@@ -28,14 +26,12 @@ public class DiscordMessageBean {
     @Autowired
     public DiscordMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL,
                               @Value("${key.node.auth.token}") String authenticatenToken,
-                              @Value("${key.platform}") String platform,
                               DiscordChatManager discordChatManager, TrackedUserManager trackedUserManager) {
         this.botChanURL = botChanURL;
         this.authenticatenToken = authenticatenToken;
-        this.platform = platform;
         this.discordChatManager = discordChatManager;
         this.trackedUserManager = trackedUserManager;
-        messageListener = new MessageListener(botChanURL, platform);
+        messageListener = new MessageListener(botChanURL);
     }
 
     @Async
@@ -46,9 +42,8 @@ public class DiscordMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForDiscordReplies() {
-        ArrayList<String> trackedUsers = new ArrayList<>();
-        trackedUsers.addAll(trackedUserManager.getAllTrackedUsers());
-        messageListener.checkReplies("/replies", new MatcherList(platform, trackedUsers), this::parseReply);
+        ArrayList<String> trackedUsers = new ArrayList<>(trackedUserManager.getAllTrackedUsers());
+        messageListener.checkReplies("/replies", trackedUsers, this::parseReply);
     }
 
     private void parseReply(ToUserMessage toUserMessage) {

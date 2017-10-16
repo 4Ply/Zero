@@ -36,13 +36,10 @@ public class DiscordChatAppConfig {
     @Value("${key.server.bot-chan.url}")
     private String botChanURL;
 
-    @Value("${key.platform}")
-    private String platform;
-
 
     @Bean
     public DiscordChatManager discordChatManager() throws DiscordException {
-        return new DiscordChatManagerImpl(discordAPIKey, botChanURL, platform, trackedUserManager());
+        return new DiscordChatManagerImpl(discordAPIKey, botChanURL, trackedUserManager());
     }
 
     @Bean

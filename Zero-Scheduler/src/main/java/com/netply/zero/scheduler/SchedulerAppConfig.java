@@ -31,9 +31,6 @@ public class SchedulerAppConfig {
     @Value("${key.server.bot-chan.url}")
     private String botChanURL;
 
-    @Value("${key.platform}")
-    private String platform;
-
 
     @Bean
     public Scheduler scheduler() throws SchedulerException {

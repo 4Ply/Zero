@@ -25,17 +25,14 @@ import java.util.stream.Collectors;
 @Component
 public class LeagueGameStateChangedBean {
     private final String botChanURL;
-    private String platform;
     private LeagueChatDatabase leagueChatDatabase;
 
 
     @Autowired
     public LeagueGameStateChangedBean(@Value("${key.server.bot-chan.url}") String botChanURL,
-                                      @Value("${key.platform}") String platform,
                                       @Value("${key.external.riot.api.key}") String riotAPIKey,
                                       LeagueChatDatabase leagueChatDatabase) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
         this.leagueChatDatabase = leagueChatDatabase;
         RiotAPI.setRegion(Region.EUW);
         RiotAPI.setAPIKey(riotAPIKey);
@@ -87,7 +84,7 @@ public class LeagueGameStateChangedBean {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            String url = String.format("/trackers?player=%s&platform=%s", cleanTrackedPlayer, platform);
+            String url = String.format("/trackers?player=%s", cleanTrackedPlayer);
             Service.create(botChanURL).get(url, null, new ServiceCallback<Object>() {
                 @Override
                 public void onError(ClientResponse response) {

@@ -1,7 +1,6 @@
 package com.netply.zero.chatter.chat;
 
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.ServiceCallback;
 import com.netply.zero.service.base.messaging.MessageListener;
@@ -20,16 +19,14 @@ import java.util.function.Consumer;
 @Component
 public class ChatterMessageBean {
     private String botChanURL;
-    private String platform;
     private MessageListener messageListener;
     private Map<String, Consumer<FromUserMessage>> messageMatchers;
 
 
     @Autowired
-    public ChatterMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
+    public ChatterMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
-        messageListener = new MessageListener(this.botChanURL, platform);
+        messageListener = new MessageListener(this.botChanURL);
         initMessageMatchers();
     }
 
@@ -101,7 +98,7 @@ public class ChatterMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMessages() {
-        messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
+        messageListener.checkMessages("/messages", new ArrayList<>(messageMatchers.keySet()), this::parseMessage);
     }
 
     private void parseMessage(FromUserMessage message) {

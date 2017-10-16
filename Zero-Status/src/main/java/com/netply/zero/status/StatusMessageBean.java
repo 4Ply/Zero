@@ -1,7 +1,6 @@
 package com.netply.zero.status;
 
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.zero.service.base.messaging.MessageListener;
 import com.netply.zero.service.base.messaging.MessageUtil;
 import com.netply.zero.service.base.permissions.PermissionUtil;
@@ -25,7 +24,6 @@ import java.util.function.Consumer;
 @Component
 public class StatusMessageBean {
     private String botChanURL;
-    private String platform;
     private MessageListener messageListener;
     private Map<String, Consumer<FromUserMessage>> messageMatchers;
     private List<StatusEndpoint> statusEndpoints;
@@ -33,10 +31,9 @@ public class StatusMessageBean {
 
 
     @Autowired
-    public StatusMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
+    public StatusMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
-        messageListener = new MessageListener(botChanURL, platform);
+        messageListener = new MessageListener(botChanURL);
         initStatusEndpoints();
         initMessageMatchers();
     }
@@ -99,7 +96,7 @@ public class StatusMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMessages() {
-        messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
+        messageListener.checkMessages("/messages", new ArrayList<>(messageMatchers.keySet()), this::parseMessage);
     }
 
     private void parseMessage(FromUserMessage message) {

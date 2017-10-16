@@ -2,7 +2,6 @@ package com.netply.zero.scheduler.chat;
 
 import com.netply.botchan.web.model.Event;
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.zero.scheduler.job.SimpleJob;
 import com.netply.zero.service.base.ListUtil;
 import com.netply.zero.service.base.Service;
@@ -30,24 +29,22 @@ import static org.quartz.TriggerBuilder.newTrigger;
 @Component
 public class SchedulerMessageBean {
     private final String botChanURL;
-    private final String platform;
     private final Scheduler scheduler;
     private MessageListener messageListener;
 
 
     @Autowired
-    public SchedulerMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform, Scheduler scheduler) {
+    public SchedulerMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, Scheduler scheduler) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
         this.scheduler = scheduler;
-        messageListener = new MessageListener(botChanURL, platform);
+        messageListener = new MessageListener(botChanURL);
     }
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMessages() {
         ArrayList<String> messageMatchers = new ArrayList<>();
         messageMatchers.add(EventMatchers.REMIND_ME_MATCHER);
-        messageListener.checkMessages("/messages", new MatcherList(platform, messageMatchers), this::parseMessage);
+        messageListener.checkMessages("/messages", messageMatchers, this::parseMessage);
     }
 
     private void parseMessage(FromUserMessage message) {
@@ -89,10 +86,10 @@ public class SchedulerMessageBean {
     public void checkForEvents() {
         ArrayList<String> messageMatchers = new ArrayList<>();
         messageMatchers.add(EventMatchers.REMIND_ME_MATCHER);
-        checkEvents("/events", new MatcherList(platform, messageMatchers), this::parseEvent);
+        checkEvents("/events", messageMatchers, this::parseEvent);
     }
 
-    public void checkEvents(String url, MatcherList matcherList, final Consumer<Event> eventConsumer) {
+    public void checkEvents(String url, ArrayList<String> matcherList, final Consumer<Event> eventConsumer) {
         messageListener.checkSubscribedObjects(url, matcherList, output -> {
             List<Event> events = ListUtil.stringToArray(output, Event[].class);
             for (Event event : events) {
@@ -105,8 +102,8 @@ public class SchedulerMessageBean {
     }
 
     private void deleteEvent(Event event, Consumer<Event> eventConsumer) {
-        String deleteMessageURL = String.format("/message?platform=%s&id=%s", platform, event.getId());
-        Service.create(botChanURL).delete(deleteMessageURL, new ServiceCallback<Object>() {
+        String deleteEventURL = String.format("/message?id=%s", event.getId());
+        Service.create(botChanURL).delete(deleteEventURL, new ServiceCallback<Object>() {
             @Override
             public void onError(ClientResponse response) {
 

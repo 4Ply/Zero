@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CurrentGameManager {
-    public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final FromUserMessage message, String platform) {
+    public static void sendCurrentGamesForTrackedPlayers(final String botChanURL, final FromUserMessage message) {
 //        Service.create(botChanURL).post("/trackedPlayers", new User(message.getSender(), platform), null, new ServiceCallback<Object>() {
 //            @Override
 //            public void onError(ClientResponse response) {

@@ -1,7 +1,6 @@
 package com.netply.zero.music.chat;
 
 import com.netply.botchan.web.model.FromUserMessage;
-import com.netply.botchan.web.model.MatcherList;
 import com.netply.botchan.web.model.Reply;
 import com.netply.zero.service.base.Service;
 import com.netply.zero.service.base.messaging.MessageListener;
@@ -26,17 +25,15 @@ import java.util.function.Consumer;
 public class MusicMessageBean {
     public static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
-    private String platform;
     private MessageListener messageListener;
     private Process songProcess;
     private Map<String, Consumer<FromUserMessage>> messageMatchers;
 
 
     @Autowired
-    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.platform}") String platform) {
+    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
         this.botChanURL = botChanURL;
-        this.platform = platform;
-        messageListener = new MessageListener(botChanURL, platform);
+        messageListener = new MessageListener(botChanURL);
         initMessageMatchers();
     }
 
@@ -97,7 +94,7 @@ public class MusicMessageBean {
 
     @Scheduled(initialDelay = 5000, fixedDelay = 1000)
     public void checkForMusicMessages() {
-        messageListener.checkMessages("/messages", new MatcherList(platform, new ArrayList<>(messageMatchers.keySet())), this::parseMessage);
+        messageListener.checkMessages("/messages", new ArrayList<>(messageMatchers.keySet()), this::parseMessage);
     }
 
     private void parseMessage(FromUserMessage message) {

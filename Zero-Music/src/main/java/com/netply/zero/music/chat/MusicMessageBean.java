@@ -9,6 +9,7 @@ import com.netply.zero.service.base.permissions.PermissionUtil;
 import com.netply.zero.service.base.permissions.PermissionsCallback;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ import java.util.function.Consumer;
 
 @Component
 public class MusicMessageBean {
+    private static Logger logger = Logger.getLogger(Service.class);
     public static final String MUSIC_DIR = "/home/pawel/Music/";
     private String botChanURL;
     private MessageListener messageListener;
@@ -134,7 +136,7 @@ public class MusicMessageBean {
                     }
                 }
             }
-            System.out.println(output);
+            logger.info(output);
             String reply;
             if (output.contains("ERROR")) {
                 reply = "Something went wrong. I was unable to download that song";
@@ -163,9 +165,9 @@ public class MusicMessageBean {
 //        songProcess = executeCommand(new String[]{"mpsyt", "playurl", filePath});
 
         File directory = new File(MUSIC_DIR);
-//        System.out.println(Arrays.toString(directory.listFiles()));
+//        logger.info(Arrays.toString(directory.listFiles()));
         Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
-//        System.out.println(files);
+//        logger.info(files);
         Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().toLowerCase().contains(filePath.toLowerCase())).findFirst();
         String reply;
         if (fileOptional.isPresent()) {
@@ -194,7 +196,7 @@ public class MusicMessageBean {
 //        StringBuilder output = new StringBuilder();
 
         try {
-            System.out.println("Command: " + Arrays.toString(command));
+            logger.info("Command: " + Arrays.toString(command));
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             return processBuilder.start();
 //            p = Runtime.getRuntime().exec(command);
@@ -212,7 +214,7 @@ public class MusicMessageBean {
             e.printStackTrace();
         }
 
-//        System.out.println(output.toString());
+//        logger.info(output.toString());
 
         return null;
     }

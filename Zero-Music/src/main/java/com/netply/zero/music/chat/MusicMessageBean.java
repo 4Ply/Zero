@@ -163,9 +163,9 @@ public class MusicMessageBean {
 //        songProcess = executeCommand(new String[]{"mpsyt", "playurl", filePath});
 
         File directory = new File(MUSIC_DIR);
-        System.out.println(Arrays.toString(directory.listFiles()));
+//        System.out.println(Arrays.toString(directory.listFiles()));
         Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
-        System.out.println(files);
+//        System.out.println(files);
         Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().toLowerCase().contains(filePath.toLowerCase())).findFirst();
         String reply;
         if (fileOptional.isPresent()) {

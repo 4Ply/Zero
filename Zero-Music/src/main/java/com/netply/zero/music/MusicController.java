@@ -11,6 +11,8 @@ import java.util.List;
 @Controller
 public class MusicController {
     private MusicManager musicManager;
+    private List<String> cachedMusicList = null;
+    private long lastUpdated = System.currentTimeMillis();
 
 
     @Autowired
@@ -21,6 +23,17 @@ public class MusicController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public @ResponseBody
     List<String> musicList() {
-        return musicManager.musicList();
+        checkCacheValidity();
+        if (cachedMusicList == null) {
+            cachedMusicList = musicManager.musicList();
+            lastUpdated = System.currentTimeMillis();
+        }
+        return cachedMusicList;
+    }
+
+    private void checkCacheValidity() {
+        if (lastUpdated < System.currentTimeMillis() - (1000 * 60 * 15)) {
+            cachedMusicList = null;
+        }
     }
 }

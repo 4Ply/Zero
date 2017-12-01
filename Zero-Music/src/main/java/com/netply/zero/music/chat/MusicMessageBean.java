@@ -114,12 +114,12 @@ public class MusicMessageBean {
                     "-o", MUSIC_DIR + "%(title)s-%(id)s.%(ext)s", youtubeURL});
             process.waitFor();
 
-            String output = "";
+            StringBuilder output = new StringBuilder();
             String outputFile = "unknown";
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                output += line + "\n";
+                output.append(line).append("\n");
                 String charSequence = "[ffmpeg] Destination: ";
                 String alreadyDownloaded = " has already been downloaded";
                 if (line.contains(charSequence)) {
@@ -136,9 +136,9 @@ public class MusicMessageBean {
                     }
                 }
             }
-            logger.info(output);
+            logger.info(output.toString());
             String reply;
-            if (output.contains("ERROR")) {
+            if (output.toString().contains("ERROR")) {
                 reply = "Something went wrong. I was unable to download that song";
             } else {
                 reply = "Song downloaded! Saved as " + outputFile;
@@ -153,27 +153,16 @@ public class MusicMessageBean {
 
     private void playSong(FromUserMessage message, String filePath) {
         if (songProcess != null) {
-//            try {
-//                songProcess.getOutputStream().write("q\n".getBytes());
-//                songProcess.getOutputStream().flush();
-//                songProcess.waitFor();
-//            } catch (IOException | InterruptedException e) {
-//                e.printStackTrace();
-//            }
             songProcess.destroy();
         }
-//        songProcess = executeCommand(new String[]{"mpsyt", "playurl", filePath});
-
         File directory = new File(MUSIC_DIR);
-//        logger.info(Arrays.toString(directory.listFiles()));
         Collection<File> files = FileUtils.listFiles(directory, new String[]{"mp3"}, true);
-//        logger.info(files);
         Optional<File> fileOptional = files.stream().sorted().filter(file -> file.getName().toLowerCase().contains(filePath.toLowerCase())).findFirst();
         String reply;
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
-            reply = "Playing " + file.getName();
-            songProcess = executeCmusCommand(new String[]{"-f", file.getAbsolutePath()});
+            reply = String.format("Queuing %s", file.getName());
+            songProcess = executeCmusCommand(new String[]{"-q", file.getAbsolutePath()});
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
@@ -193,28 +182,13 @@ public class MusicMessageBean {
     }
 
     private Process executeCommand(String[] command) {
-//        StringBuilder output = new StringBuilder();
-
         try {
             logger.info("Command: " + Arrays.toString(command));
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             return processBuilder.start();
-//            p = Runtime.getRuntime().exec(command);
-//            p.waitFor();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//            AudioStream audioStream = new AudioStream(p.getInputStream());
-
-            // play the audio clip with the audioplayer class
-//            AudioPlayer.player.start(audioStream);
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                output.append(line).append("\n");
-//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        logger.info(output.toString());
 
         return null;
     }

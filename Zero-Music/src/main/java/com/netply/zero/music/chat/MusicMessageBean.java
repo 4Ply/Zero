@@ -1,4 +1,4 @@
-package com.netply.zero.music.chat;
+package coimmediately.music.chat;
 
 import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.Reply;
@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class MusicMessageBean {
     private static Logger logger = Logger.getLogger(Service.class);
     public static final String MUSIC_DIR = "/home/pawel/Music/";
+    private String socketPath;
     private String botChanURL;
     private MessageListener messageListener;
     private Process songProcess;
@@ -33,8 +34,9 @@ public class MusicMessageBean {
 
 
     @Autowired
-    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL) {
+    public MusicMessageBean(@Value("${key.server.bot-chan.url}") String botChanURL, @Value("${key.cmus.socket.path}") String socketPath) {
         this.botChanURL = botChanURL;
+        this.socketPath = socketPath;
         messageListener = new MessageListener(botChanURL);
         initMessageMatchers();
     }
@@ -161,8 +163,10 @@ public class MusicMessageBean {
         String reply;
         if (fileOptional.isPresent()) {
             File file = fileOptional.get();
-            reply = String.format("Queuing %s", file.getName());
-            songProcess = executeCmusCommand(new String[]{"-q", file.getAbsolutePath()});
+            String playVerb = isCmusPlaying() ? "Queuing" : "Playing";
+            reply = String.format(playVerb + " %s", file.getName());
+            String playCommand = isCmusPlaying() ? "-q" : "-f";
+            songProcess = executeCmusCommand(new String[]{playCommand, file.getAbsolutePath()});
         } else {
             reply = "I can't find any song containing the text \"" + filePath + "\"";
         }
@@ -177,8 +181,34 @@ public class MusicMessageBean {
         Runtime.getRuntime().addShutdownHook(stopSongProcess);
     }
 
+    private boolean isCmusPlaying() {
+        try {
+            String command = "-Q";
+            Process process = Runtime.getRuntime().exec(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", socketPath}, command));
+            process.waitFor();
+
+            StringBuilder output = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+                String charSequence = "status ";
+                if (line.contains(charSequence)) {
+                    String playingStatus = line.replace(charSequence, "");
+                    if (playingStatus.contains("playing")) {
+                        return true;
+                    }
+                }
+            }
+            logger.info(output.toString());
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private Process executeCmusCommand(String[] command) {
-        return executeCommand(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", "/sock/cmus-socket"}, command));
+        return executeCommand(ArrayUtils.addAll(new String[]{"cmus-remote", "--server", socketPath}, command));
     }
 
     private Process executeCommand(String[] command) {

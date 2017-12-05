@@ -1,4 +1,4 @@
-package coimmediately.music.chat;
+package com.netply.zero.music.chat;
 
 import com.netply.botchan.web.model.FromUserMessage;
 import com.netply.botchan.web.model.Reply;
